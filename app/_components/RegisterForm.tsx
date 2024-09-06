@@ -1,30 +1,32 @@
-// _components/LoginForm.tsx
+// _components/RegisterForm.tsx
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 
-export default function LoginForm() {
+export default function RegisterForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const router = useRouter();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate login logic here, such as validating credentials
-    if (email === "admin@example.com" && password === "password") {
-      router.push("/dashboard"); // Update the path to match the file structure
+    // Simulate registration logic here
+    if (password === confirmPassword) {
+      // Handle successful registration (e.g., save user data, redirect)
+      alert("Registration successful!");
+      router.push("/login");
     } else {
-      alert("Invalid credentials");
+      alert("Passwords do not match");
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded shadow-md w-96">
-        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
-        <form onSubmit={handleLogin}>
+        <h2 className="text-2xl font-bold mb-6 text-center">Register</h2>
+        <form onSubmit={handleRegister}>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
               Email
@@ -37,7 +39,7 @@ export default function LoginForm() {
               className="w-full px-3 py-2 border rounded"
             />
           </div>
-          <div className="mb-6">
+          <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
               Password
             </label>
@@ -49,21 +51,25 @@ export default function LoginForm() {
               className="w-full px-3 py-2 border rounded"
             />
           </div>
+          <div className="mb-6">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Confirm Password
+            </label>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              className="w-full px-3 py-2 border rounded"
+            />
+          </div>
           <button
             type="submit"
             className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
           >
-            Login
+            Register
           </button>
         </form>
-        <div className="mt-4 text-center">
-          <p className="text-sm text-gray-600">
-            Don't have an account?{" "}
-            <Link href="/register" className="text-blue-500 hover:underline">
-              Register
-            </Link>
-          </p>
-        </div>
       </div>
     </div>
   );
