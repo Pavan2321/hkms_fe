@@ -1,22 +1,29 @@
-// _components/LoginForm.tsx
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { loginUser } from "@/app/services/authService";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const router = useRouter();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate login logic here, such as validating credentials
-    if (email === "admin@example.com" && password === "password") {
-      router.push("/dashboard"); // Update the path to match the file structure
-    } else {
-      alert("Invalid credentials");
+
+    try {
+      const data = await loginUser(email, password);
+      alert("Login successful!");
+      console.log(data, 'response');
+
+      // Optionally, store the token in localStorage or cookies
+      localStorage.setItem("token", data.success.body.token);
+
+      router.push("/dashboard"); // Redirect to the dashboard after login
+    } catch (err: any) {
+      setError(err.message || "Login failed");
     }
   };
 
@@ -24,6 +31,7 @@ export default function LoginForm() {
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded shadow-md w-96">
         <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
+        {error && <p className="text-red-500 mb-4">{error}</p>}
         <form onSubmit={handleLogin}>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
@@ -37,7 +45,7 @@ export default function LoginForm() {
               className="w-full px-3 py-2 border rounded"
             />
           </div>
-          <div className="mb-6">
+          <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
               Password
             </label>
@@ -56,14 +64,6 @@ export default function LoginForm() {
             Login
           </button>
         </form>
-        <div className="mt-4 text-center">
-          <p className="text-sm text-gray-600">
-            Don't have an account?{" "}
-            <Link href="/register" className="text-blue-500 hover:underline">
-              Register
-            </Link>
-          </p>
-        </div>
       </div>
     </div>
   );
