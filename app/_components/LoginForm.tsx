@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { loginUser } from "@/app/services/authService";
+import { loginUser } from "@/app/services/authService"; // Ensure authService exists
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -16,12 +16,12 @@ export default function LoginForm() {
     try {
       const data = await loginUser(email, password);
       alert("Login successful!");
-      console.log(data, 'response');
 
-      // Optionally, store the token in localStorage or cookies
+      // Store the token in localStorage
       localStorage.setItem("token", data.success.body.token);
 
-      router.push("/dashboard"); // Redirect to the dashboard after login
+      // Redirect to the dashboard or reload the page to trigger the Sidebar display
+      router.push("/dashboard");
     } catch (err: any) {
       setError(err.message || "Login failed");
     }

@@ -44,7 +44,7 @@ export default function EmployeeTable() {
   };
 
   return (
-    <div className="min-h-full">
+    <div className="min-h-full w-full">
       <Header />
       <div className="flex-1 mx-auto max-w-7xl p-4 sm:px-6 lg:p-8">
         {showAddEmployeeForm ? (
@@ -90,8 +90,6 @@ export default function EmployeeTable() {
                     <th className="p-2 border-b text-left">Email</th>
                     <th className="p-2 border-b text-left">ID</th>
                     <th className="p-2 border-b text-left">Role</th>
-                    <th className="p-2 border-b text-left">Date Created</th>
-                    <th className="p-2 border-b text-left">Last Login</th>
                     <th className="p-2 border-b text-left">Status</th>
                   </tr>
                 </thead>
@@ -103,8 +101,6 @@ export default function EmployeeTable() {
                       <td className="p-2 border-b">{employee.email}</td>
                       <td className="p-2 border-b">{employee.id}</td>
                       <td className="p-2 border-b">{employee.role}</td>
-                      <td className="p-2 border-b">{employee.dateCreated}</td>
-                      <td className="p-2 border-b">{employee.lastLogin}</td>
                       <td className="p-2 border-b">{employee.status}</td>
                     </tr>
                   ))}

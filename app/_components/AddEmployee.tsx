@@ -1,3 +1,4 @@
+"use client";
 import { useState } from "react";
 
 interface Employee {
@@ -5,9 +6,8 @@ interface Employee {
   lastName: string;
   employeeId: string;
   email: string;
-  mobilePhone: string;
   password: string;
-  status: string;
+  role: "Admin" | "User"; // Added role field
 }
 
 interface AddEmployeeProps {
@@ -20,9 +20,8 @@ export default function AddEmployee({ onAddEmployee }: AddEmployeeProps) {
     lastName: "",
     employeeId: "",
     email: "",
-    mobilePhone: "",
     password: "",
-    status: "Active",
+    role: "User", // Default role
   });
 
   const handleChange = (
@@ -123,23 +122,6 @@ export default function AddEmployee({ onAddEmployee }: AddEmployeeProps) {
 
       <div className="mb-4">
         <label
-          htmlFor="mobilePhone"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Mobile Phone
-        </label>
-        <input
-          type="tel"
-          name="mobilePhone"
-          id="mobilePhone"
-          value={employee.mobilePhone}
-          onChange={handleChange}
-          className="mt-1 block w-full border border-gray-300 p-2 rounded-md"
-        />
-      </div>
-
-      <div className="mb-4">
-        <label
           htmlFor="password"
           className="block text-sm font-medium text-gray-700"
         >
@@ -159,20 +141,20 @@ export default function AddEmployee({ onAddEmployee }: AddEmployeeProps) {
 
       <div className="mb-4">
         <label
-          htmlFor="status"
+          htmlFor="role"
           className="block text-sm font-medium text-gray-700"
         >
-          Status
+          Role
         </label>
         <select
-          name="status"
-          id="status"
-          value={employee.status}
+          name="role"
+          id="role"
+          value={employee.role}
           onChange={handleChange}
           className="mt-1 block w-full border border-gray-300 p-2 rounded-md"
         >
-          <option value="Active">Active</option>
-          <option value="Inactive">Inactive</option>
+          <option value="Admin">Admin</option>
+          <option value="User">User</option>
         </select>
       </div>
 

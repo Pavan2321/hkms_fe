@@ -1,107 +1,61 @@
-"use client";
-
+"use client"
 import { useState } from "react";
-import {
-  AiOutlineMenu,
-  AiOutlineBell,
-  AiOutlineUser,
-  AiOutlineSetting,
-} from "react-icons/ai";
-import { FaTimes } from "react-icons/fa";
-import Link from "next/link";
+import { FaBell, FaTimes } from "react-icons/fa";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false); // State to toggle dropdown
+  const router = useRouter();
+
+  const handleLogout = () => {
+    // Remove token from localStorage to log out
+    localStorage.removeItem("token");
+
+    // Redirect to login page after logout
+    router.push("/");
+  };
 
   return (
     <>
-      <nav className="bg-gray-800">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center">
-              <button
-                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                className="text-gray-400 hover:text-white md:hidden"
-              >
-                <AiOutlineMenu className="h-6 w-6" />
-              </button>
-              <div className="flex-shrink-0">
-                <img
-                  alt="Your Company"
-                  src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
-                  className="h-8 w-8"
-                />
-              </div>
-              <div className="hidden md:block">
-                <div className="ml-10 flex items-baseline space-x-4">
-                  <Link
-                    href="/dashboard"
-                    className="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"
-                  >
-                    Dashboard
-                  </Link>
-                  <Link
-                    href="/tasks"
-                    className="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"
-                  >
-                    Tasks
-                  </Link>
-                  <Link
-                    href="/users"
-                    className="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"
-                  >
-                    Users
-                  </Link>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <button type="button" className="text-gray-400 hover:text-white">
-                <AiOutlineBell className="h-6 w-6" />
-              </button>
-              <button type="button" className="text-gray-400 hover:text-white">
-                <AiOutlineUser className="h-6 w-6" />
-              </button>
-              <button type="button" className="text-gray-400 hover:text-white">
-                <AiOutlineSetting className="h-6 w-6" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      {isSidebarOpen && (
-        <div className="fixed inset-0 z-10 overflow-y-auto bg-gray-800 bg-opacity-75">
-          <div className="relative bg-white w-64 p-4">
-            <button
-              onClick={() => setIsSidebarOpen(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
-            >
-              <FaTimes className="h-6 w-6" />
+      <header className="bg-indigo-500 p-6 flex items-center justify-between" style={{ paddingBottom: '60px' }}>
+        <div className="flex items-center w-full hkms__heading">
+          <h1 className="text-black text-2xl font-bold">Dashboard</h1>
+          <div className="flex items-center space-x-4" style={{ marginLeft: "auto" }}>
+            {/* Notification Button */}
+            <button className="relative bg-indigo-500 p-2 rounded-full">
+              <span className="absolute right-0 top-0 bg-red-500 w-2 h-2 rounded-full"></span>
+              <FaBell className="text-white text-2xl" />
             </button>
-            <div className="mt-8">
-              <Link
-                href="/dashboard"
-                className="block px-4 py-2 text-gray-900 hover:bg-gray-100"
-              >
-                Dashboard
-              </Link>
-              <Link
-                href="/tasks"
-                className="block px-4 py-2 text-gray-900 hover:bg-gray-100"
-              >
-                Tasks
-              </Link>
-              <Link
-                href="/users"
-                className="block px-4 py-2 text-gray-900 hover:bg-gray-100"
-              >
-                Users
-              </Link>
+            
+            {/* Profile Icon and Dropdown */}
+            <div className="relative">
+              <img
+                src="	https://codescandy.com/dashui/assets/images/avatar/avatar-1.jpg"
+                alt="User Avatar"
+                className="w-10 h-10 rounded-full cursor-pointer"
+                onClick={() => setDropdownOpen(!dropdownOpen)} // Toggle dropdown on click
+              />
+              
+              {/* Dropdown Menu */}
+              {dropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
+                  <ul className="py-1">
+                    {/* Logout Option */}
+                    <li>
+                      <button
+                        onClick={handleLogout}
+                        className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-200"
+                      >
+                        Logout
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              )}
             </div>
           </div>
         </div>
-      )}
+      </header>
     </>
   );
 }
