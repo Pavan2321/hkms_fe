@@ -14,7 +14,46 @@ const initialEmployees = [
     lastLogin: "8/31/2022",
     status: "Active",
   },
-  // Add more employee data here
+  {
+    lastName: "Lee",
+    firstName: "Sophia",
+    email: "sophia.lee@company.com",
+    id: "54321",
+    role: "Manager",
+    dateCreated: "9/10/2024", // Updated date
+    lastLogin: "9/10/2024", // Updated date
+    status: "Active",
+  },
+  {
+    lastName: "Gupta",
+    firstName: "Ravi",
+    email: "ravi.gupta@company.com",
+    id: "98765",
+    role: "Developer",
+    dateCreated: "7/15/2023",
+    lastLogin: "8/25/2024",
+    status: "Active",
+  },
+  {
+    lastName: "Sanchez",
+    firstName: "Isabella",
+    email: "isabella.sanchez@company.com",
+    id: "24680",
+    role: "Designer",
+    dateCreated: "6/01/2024",
+    lastLogin: "9/08/2024",
+    status: "Active",
+  },
+  {
+    lastName: "Nguyen",
+    firstName: "Linh",
+    email: "linh.nguyen@company.com",
+    id: "75931",
+    role: "QA Tester",
+    dateCreated: "5/12/2024",
+    lastLogin: "9/05/2024",
+    status: "Active",
+  }
 ];
 
 export default function EmployeeTable() {
