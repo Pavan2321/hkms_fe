@@ -1,11 +1,20 @@
 "use client"
 import { useState } from "react";
 import { FaBell, FaTimes } from "react-icons/fa";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+
+const routeTitles: any = {
+  '/dashboard': 'Dashboard',
+  '/profile': 'Profile',
+  '/settings': 'Settings',
+  '/employee': 'Employee List'
+  // Add more routes and titles as needed
+};
 
 export default function Header() {
   const [dropdownOpen, setDropdownOpen] = useState(false); // State to toggle dropdown
   const router = useRouter();
+  const currentPath = usePathname(); // Get the current route path
 
   const handleLogout = () => {
     // Remove token from localStorage to log out
@@ -15,11 +24,14 @@ export default function Header() {
     router.push("/");
   };
 
+  // Get the header title based on the current route
+  const headerTitle = routeTitles[currentPath] || 'Default Title';
+
   return (
     <>
       <header className="bg-indigo-500 p-6 flex items-center justify-between" style={{ paddingBottom: '60px' }}>
         <div className="flex items-center w-full hkms__heading">
-          <h1 className="text-black text-2xl font-bold">Dashboard</h1>
+          <h1 className="text-black text-2xl font-bold">{headerTitle}</h1>
           <div className="flex items-center space-x-4" style={{ marginLeft: "auto" }}>
             {/* Notification Button */}
             <button className="relative bg-indigo-500 p-2 rounded-full">
