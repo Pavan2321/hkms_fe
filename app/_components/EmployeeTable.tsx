@@ -71,7 +71,7 @@ export default function EmployeeTable() {
   // Function to handle delete
   const handleDelete = async (employeeId: string) => {
     const confirmDelete = window.confirm("Are you sure you want to delete this employee?");
-    
+
     if (!confirmDelete) return;
 
     try {
@@ -126,12 +126,11 @@ export default function EmployeeTable() {
           <table className="min-w-full">
             <thead>
               <tr>
-                <th className="p-2 border-b text-left">Last Name</th>
-                <th className="p-2 border-b text-left">First Name</th>
+                <th className="p-2 border-b text-left">Emp ID</th>
+                <th className="p-2 border-b text-left">Name</th>
                 <th className="p-2 border-b text-left">Email</th>
-                <th className="p-2 border-b text-left">ID</th>
                 <th className="p-2 border-b text-left">Role</th>
-                <th className="p-2 border-b text-left">Actions</th>{" "}
+                <th className="p-2 border-b text-center">Actions</th>
                 {/* Changed from Status to Actions */}
               </tr>
             </thead>
@@ -139,10 +138,9 @@ export default function EmployeeTable() {
               {filteredEmployees.length > 0 ? (
                 filteredEmployees.map((employee: any, index: number) => (
                   <tr key={index}>
-                    <td className="p-2 border-b">{employee.last_name}</td>
-                    <td className="p-2 border-b">{employee.first_name}</td>
+                    <td className="p-2 border-b">{employee.user_id || "--"}</td>
+                    <td className="p-2 border-b">{employee.first_name + " " + employee.last_name}</td>
                     <td className="p-2 border-b">{employee.email}</td>
-                    <td className="p-2 border-b">{employee.id}</td>
                     <td className="p-2 border-b">{employee.role}</td>
                     <td className="p-2 border-b text-center relative">
                       <button

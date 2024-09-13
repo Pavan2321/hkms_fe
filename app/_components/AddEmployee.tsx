@@ -12,6 +12,7 @@ export default function AddEmployee() {
     user_id: "",
     email: "",
     password: "",
+    phone_number: "",
     role: "user",
   });
   const [error, setError] = useState<string | null>(null);
@@ -57,8 +58,10 @@ export default function AddEmployee() {
       if (isEditing && employeeId) {
         await updateUser(employeeId, employee); // Update the employee if editing
       } else {
-        const { email, password, role, first_name, last_name } = employee;
-        await registerUser(email, password, role, first_name, last_name); // Register a new employee
+        const _date = new Date();
+        const _password = employee.email + _date;
+        const { email, password, role, first_name, last_name, phone_number } = employee;
+        await registerUser(email, _password, role, first_name, last_name, phone_number); // Register a new employee
       }
 
       router.push("/employee"); // Redirect to employee list after update or add
@@ -156,8 +159,25 @@ export default function AddEmployee() {
             className="mt-1 block w-full border border-gray-300 p-2 rounded-md"
           />
         </div>
+        <div className="mb-4">
+          <label
+            htmlFor="phone_number"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Phone number
+          </label>
+          <input
+            type="text"
+            name="phone_number"
+            id="phone_number"
+            required
+            value={employee?.phone_number}
+            onChange={handleChange}
+            className="mt-1 block w-full border border-gray-300 p-2 rounded-md"
+          />
+        </div>
 
-        {!isEditing && (
+        {/* {!isEditing && (
           <div className="mb-4">
             <label
               htmlFor="password"
@@ -175,7 +195,7 @@ export default function AddEmployee() {
               className="mt-1 block w-full border border-gray-300 p-2 rounded-md"
             />
           </div>
-        )}
+        )} */}
 
         <div className="mb-4">
           <label
@@ -200,17 +220,16 @@ export default function AddEmployee() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ${
-              isSubmitting ? "opacity-50 cursor-not-allowed" : ""
-            }`}
+            className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+              }`}
           >
             {isSubmitting
               ? isEditing
                 ? "Updating..."
                 : "Adding..."
               : isEditing
-              ? "Update Employee"
-              : "Add Employee"}
+                ? "Update Employee"
+                : "Add Employee"}
           </button>
           <button
             type="button"
