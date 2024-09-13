@@ -22,7 +22,7 @@ export default function Sidebar() {
           </li>
           <li className="flex items-center space-x-2 hover:bg-gray-700 p-2 rounded">
             <FaTasks />
-            <Link href="#" className="font-semibold">
+            <Link href="/tasks" className="font-semibold">
               Tasks
             </Link>
           </li>
