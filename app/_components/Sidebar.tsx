@@ -1,6 +1,7 @@
 // _components/Sidebar.tsx
 import { FaClipboardList, FaTasks, FaUsers } from "react-icons/fa";
 import Link from "next/link"; // For navigation
+import { FaUpwork } from "react-icons/fa6";
 
 export default function Sidebar() {
   return (
@@ -24,6 +25,12 @@ export default function Sidebar() {
             <FaTasks />
             <Link href="/tasks" className="font-semibold">
               Tasks
+            </Link>
+          </li>
+          <li className="flex items-center space-x-2 hover:bg-gray-700 p-2 rounded">
+            <FaUpwork />
+            <Link href="/facilities" className="font-semibold">
+              Facilities
             </Link>
           </li>
         </ul>
