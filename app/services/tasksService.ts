@@ -28,7 +28,7 @@ export const createTask = async (taskData: any) => {
 // Update an existing task
 export const updateTask = async (id: string, taskData: any) => {
   try {
-    const response = await axios.put(`${API_URL}/${id}`, taskData);
+    const response = await axios.put(`${API_URL}/tasks/${id}`, taskData);
     return response.data;
   } catch (error) {
     console.error("Error updating task:", error);

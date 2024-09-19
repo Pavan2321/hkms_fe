@@ -69,33 +69,65 @@ const CreateTaskStepperForm = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const taskData = {
-      title: task.title,
-      description: task.description,
-      date: task.date,
-      start_time: task.start_time,
-      end_time: task.end_time,
-      assigned_to: task.assigned_to,
-      facility: task.facility,
-      task_type: task.task_type,
-      priority: task.priority,
-    };
-
-    try {
-      if (taskId && isEditing) {
-        await updateTask(taskId, taskData);
-      } else {
-        await createTask(taskData);
+    if (currentStep === 3) {
+      e.preventDefault();
+      const taskData = {
+        title: task.title,
+        description: task.description,
+        date: task.date,
+        start_time: task.start_time,
+        end_time: task.end_time,
+        assigned_to: task.assigned_to,
+        facility: task.facility,
+        task_type: task.task_type,
+        priority: task.priority,
+      };
+      try {
+        if (taskId && isEditing) {
+          await updateTask(taskId, taskData);
+          router.push("/tasks");
+        } else {
+          await createTask(taskData);
+          router.push("/tasks");
+        }
+      } catch (error) {
+        console.error("Error creating task:", error);
       }
-      router.push("/tasks");
-    } catch (error) {
-      console.error("Error creating task:", error);
     }
   };
 
-  const nextStep = () => setCurrentStep(currentStep + 1);
-  const prevStep = () => setCurrentStep(currentStep - 1);
+  const nextStep = () => {
+    if (currentStep === 1) {
+      // Validate the first step inputs (e.g., title, date, time)
+      if (!task.title || !task.date || !task.start_time || !task.end_time) {
+        setError("Please fill in all required fields in Step 1.");
+        return; // Prevent moving to the next step if validation fails
+      }
+    } else if (currentStep === 2) {
+      // Validate the second step inputs (e.g., assigned_to, facility, task_type, priority)
+      if (
+        !task.assigned_to ||
+        !task.facility ||
+        !task.task_type ||
+        !task.priority
+      ) {
+        setError("Please fill in all required fields in Step 2.");
+        return;
+      }
+    }
+
+    if (currentStep < 3) {
+      setCurrentStep(currentStep + 1); // Move to the next step if validation passes
+    }
+    console.log(currentStep, "current");
+  };
+
+  const prevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1); // Ensure the form doesn't go below step 1
+    }
+    console.log(currentStep, "previous");
+  };
 
   const renderStep = () => {
     switch (currentStep) {
@@ -287,9 +319,9 @@ const CreateTaskStepperForm = () => {
   };
 
   return (
-    <div  className="max-w-4xl mx-auto bg-white shadow-md rounded-lg">
+    <div className="max-w-4xl mx-auto bg-white shadow-md rounded-lg">
       <ProgressBar
-        percent={currentStep * 33.33}
+        percent={(currentStep - 1) * 50} // 50% for each step (2 steps + review)
         filledBackground="linear-gradient(to right, #4db6ac, #003d34)"
         className="mb-6"
       >
@@ -322,6 +354,7 @@ const CreateTaskStepperForm = () => {
               Previous
             </button>
           )}
+
           {currentStep < 3 ? (
             <button
               type="button"
