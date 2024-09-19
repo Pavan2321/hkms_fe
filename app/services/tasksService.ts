@@ -7,7 +7,7 @@ const API_URL =
 export const getTasks = async () => {
   try {
     const response = await axios.get(`${API_URL}/tasks`);
-    console.log(response, 'response')
+    console.log(response, "response");
     return response.data.success.body.tasks; // Return tasks array
   } catch (error) {
     console.error("Failed to fetch tasks:", error);
@@ -21,6 +21,40 @@ export const createTask = async (taskData: any) => {
     return response.data;
   } catch (error) {
     console.error("Failed to fetch tasks:", error);
+    throw error;
+  }
+};
+
+// Update an existing task
+export const updateTask = async (id: string, taskData: any) => {
+  try {
+    const response = await axios.put(`${API_URL}/${id}`, taskData);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating task:", error);
+    throw error;
+  }
+};
+
+// Function to fetch employee by ID
+export const getTaskById = async (taskId: string) => {
+  try {
+    const response = await axios.get(`${API_URL}/tasks/${taskId}`);
+    return response.data.success.body.task; // Assuming the response contains 'userData'
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    throw error;
+  }
+};
+
+
+// Delete a task
+export const deleteTask = async (id: string) => {
+  try {
+    const response = await axios.delete(`${API_URL}/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting task:", error);
     throw error;
   }
 };

@@ -2,7 +2,7 @@
 
 "use client";
 import { useEffect, useState } from "react";
-import { getTasks } from "@/app/services/tasksService"; // Import the task service
+import { getTasks, deleteTask } from "@/app/services/tasksService"; // Import task services
 import { useRouter } from "next/navigation";
 
 export default function TaskComponent() {
@@ -15,9 +15,8 @@ export default function TaskComponent() {
     const fetchTasks = async () => {
       try {
         const response = await getTasks(); // Fetch tasks from service
-        // Check if response is wrapped in an object and extract tasks
         setTasks(response);
-        console.log(response, "list of task");
+        console.log(response, "list of tasks");
       } catch (error) {
         setError("Failed to fetch tasks.");
         console.error(error);
@@ -29,6 +28,20 @@ export default function TaskComponent() {
 
   const handleCreateTask = () => {
     router.push("/create-task");
+  };
+
+  const handleEdit = (id: string) => {
+    router.push(`/create-task/?taskId=${id}`);
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteTask(id); // Delete task from service
+      setTasks(tasks.filter((task: any) => task._id !== id)); // Update task list after deletion
+    } catch (error) {
+      setError("Failed to delete task.");
+      console.error(error);
+    }
   };
 
   return (
@@ -47,7 +60,7 @@ export default function TaskComponent() {
           <thead>
             <tr>
               <th className="p-2 border-b text-left">Task Name</th>
-              <th className="p-2 border-b text-left">Description</th>
+              <th className="p-2 border-b text-left">Assigned</th>
               <th className="p-2 border-b text-left">Facility</th>
               <th className="p-2 border-b text-left">Task Type</th>
               <th className="p-2 border-b text-left">Priority</th>
@@ -59,10 +72,10 @@ export default function TaskComponent() {
           </thead>
           <tbody>
             {tasks.length > 0 ? (
-              tasks.map((task: any, index: number) => (
-                <tr key={index}>
+              tasks.map((task: any) => (
+                <tr key={task._id}>
                   <td className="p-2 border-b">{task.title}</td>
-                  <td className="p-2 border-b">{task.description}</td>
+                  <td className="p-2 border-b">{task.assigned_to}</td>
                   <td className="p-2 border-b">{task.facility}</td>
                   <td className="p-2 border-b">{task.task_type}</td>
                   <td className="p-2 border-b">{task.priority}</td>
@@ -76,9 +89,18 @@ export default function TaskComponent() {
                     {new Date(task.date).toLocaleDateString()}
                   </td>
                   <td className="p-2 border-b">
-                    {/* Add edit and delete buttons here */}
-                    <button className="text-blue-600">Edit</button>
-                    <button className="text-red-600 ml-2">Delete</button>
+                    <button
+                      onClick={() => handleEdit(task._id)}
+                      className="text-blue-600"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(task._id)}
+                      className="text-red-600 ml-2"
+                    >
+                      Delete
+                    </button>
                   </td>
                 </tr>
               ))

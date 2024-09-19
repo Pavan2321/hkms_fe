@@ -1,119 +1,169 @@
 import React, { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { createTask } from "../services/tasksService"; // Adjust import
-import { getUsers } from "../services/userService"; // For fetching users
+import { createTask, getTaskById, updateTask } from "../services/tasksService";
+import { getUsers } from "../services/userService";
 import { ProgressBar, Step } from "react-step-progress-bar";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import "react-step-progress-bar/styles.css";
 
 const CreateTaskStepperForm = () => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [taskName, setTaskName] = useState("");
-  const [description, setDescription] = useState("");
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [startTime, setStartTime] = useState<Date | null>(null);
-  const [endTime, setEndTime] = useState<Date | null>(null);
-  const [assignedTo, setAssignedTo] = useState("");
-  const [facility, setFacility] = useState("");
-  const [taskType, setTaskType] = useState("");
-  const [priority, setPriority] = useState("medium");
-  const [users, setUsers] = useState([]);
+  const [task, setTask] = useState<any>({
+    assigned_to: "",
+    createdAt: "",
+    date: "",
+    description: "",
+    end_time: "",
+    facility: "",
+    priority: "",
+    start_time: "",
+    status: "",
+    task_type: "",
+    title: "",
+    updatedAt: "",
+  });
+  const [users, setUsers] = useState<any[]>([]);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const taskId = searchParams.get("taskId");
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Fetch users for the 'Assigned to' dropdown
   useEffect(() => {
     const fetchUsers = async () => {
-      const response = await getUsers();
-      setUsers(response);
+      try {
+        const response = await getUsers();
+        setUsers(response);
+      } catch (error) {
+        setError("Error fetching users");
+      }
     };
     fetchUsers();
   }, []);
 
-  // Function to handle form submission
+  useEffect(() => {
+    if (taskId) {
+      const fetchTask = async () => {
+        try {
+          const taskData = await getTaskById(taskId);
+          setTask(taskData);
+          setIsEditing(true);
+        } catch (error) {
+          setError("Error getting the task");
+        }
+      };
+      fetchTask();
+    }
+  }, [taskId]);
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setTask((prevTask: any) => ({ ...prevTask, [name]: value }));
+  };
+
+  const handleDateChange = (date: Date | null, field: string) => {
+    setTask((prevTask: any) => ({ ...prevTask, [field]: date }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const taskData = {
-      title: taskName,
-      description,
-      date: selectedDate,
-      start_time: startTime,
-      end_time: endTime,
-      assigned_to: assignedTo,
-      facility,
-      task_type: taskType,
-      priority,
+      title: task.title,
+      description: task.description,
+      date: task.date,
+      start_time: task.start_time,
+      end_time: task.end_time,
+      assigned_to: task.assigned_to,
+      facility: task.facility,
+      task_type: task.task_type,
+      priority: task.priority,
     };
 
     try {
-      await createTask(taskData);
-      router.push("/tasks"); // Redirect after submission
+      if (taskId && isEditing) {
+        await updateTask(taskId, taskData);
+      } else {
+        await createTask(taskData);
+      }
+      router.push("/tasks");
     } catch (error) {
       console.error("Error creating task:", error);
     }
   };
 
-  // Helper functions for step navigation
   const nextStep = () => setCurrentStep(currentStep + 1);
   const prevStep = () => setCurrentStep(currentStep - 1);
 
-  // Form steps rendering
   const renderStep = () => {
     switch (currentStep) {
       case 1:
         return (
           <div>
-            <h3 className="text-xl font-bold mb-4">Task Details</h3>
+            <h3 className="text-xl font-bold mb-4">
+              {isEditing ? "Update Task" : "Create Task"}
+            </h3>
             <div className="mb-4">
-              <label className="block text-gray-700 font-medium mb-2">Task Name</label>
+              <label className="block text-gray-700 font-medium mb-2">
+                Task Name
+              </label>
               <input
                 type="text"
-                value={taskName}
-                onChange={(e) => setTaskName(e.target.value)}
+                name="title"
+                value={task.title}
+                onChange={handleInputChange}
                 placeholder="Enter task name"
-                className="w-full p-3 border border-gray-300 rounded-md"
+                className="w-full p-3 border border-gray-300 rounded-md shadow-sm"
                 required
               />
             </div>
             <div className="mb-4">
-              <label className="block text-gray-700 font-medium mb-2">Select Date</label>
+              <label className="block text-gray-700 font-medium mb-2">
+                Select Date
+              </label>
               <DatePicker
-                selected={selectedDate}
-                onChange={(date) => setSelectedDate(date)}
+                selected={task.date ? new Date(task.date) : null}
+                onChange={(date) => handleDateChange(date, "date")}
                 dateFormat="MMMM d, yyyy"
                 placeholderText="Select Date"
-                className="w-full p-3 border border-gray-300 rounded-md"
+                className="w-full p-3 border border-gray-300 rounded-md shadow-sm"
                 required
               />
             </div>
             <div className="flex space-x-4">
               <div className="w-1/2">
-                <label className="block text-gray-700 font-medium mb-2">Start Time</label>
+                <label className="block text-gray-700 font-medium mb-2">
+                  Start Time
+                </label>
                 <DatePicker
-                  selected={startTime}
-                  onChange={(time) => setStartTime(time)}
+                  selected={task.start_time ? new Date(task.start_time) : null}
+                  onChange={(date) => handleDateChange(date, "start_time")}
                   showTimeSelect
                   showTimeSelectOnly
                   timeIntervals={15}
                   timeCaption="Start Time"
                   dateFormat="h:mm aa"
                   placeholderText="Select Start Time"
-                  className="w-full p-3 border border-gray-300 rounded-md"
+                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm"
                   required
                 />
               </div>
               <div className="w-1/2">
-                <label className="block text-gray-700 font-medium mb-2">End Time</label>
+                <label className="block text-gray-700 font-medium mb-2">
+                  End Time
+                </label>
                 <DatePicker
-                  selected={endTime}
-                  onChange={(time) => setEndTime(time)}
+                  selected={task.end_time ? new Date(task.end_time) : null}
+                  onChange={(date) => handleDateChange(date, "end_time")}
                   showTimeSelect
                   showTimeSelectOnly
                   timeIntervals={15}
                   timeCaption="End Time"
                   dateFormat="h:mm aa"
                   placeholderText="Select End Time"
-                  className="w-full p-3 border border-gray-300 rounded-md"
+                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm"
                   required
                 />
               </div>
@@ -125,54 +175,66 @@ const CreateTaskStepperForm = () => {
           <div>
             <h3 className="text-xl font-bold mb-4">Assignment & Metadata</h3>
             <div className="mb-4">
-              <label className="block text-gray-700 font-medium mb-2">Assign To</label>
+              <label className="block text-gray-700 font-medium mb-2">
+                Assign To
+              </label>
               <select
-                value={assignedTo}
-                onChange={(e) => setAssignedTo(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-md"
+                name="assigned_to"
+                value={task.assigned_to}
+                onChange={handleInputChange}
+                className="w-full p-3 border border-gray-300 rounded-md shadow-sm"
                 required
               >
                 <option value="">Select a user</option>
                 {users.map((user: any) => (
-                  <option key={user?._id} value={user?._id}>
+                  <option key={user?._id} value={user?._first_name}>
                     {user?.first_name}
                   </option>
                 ))}
               </select>
             </div>
             <div className="mb-4">
-              <label className="block text-gray-700 font-medium mb-2">Facility</label>
+              <label className="block text-gray-700 font-medium mb-2">
+                Facility
+              </label>
               <input
                 type="text"
-                value={facility}
-                onChange={(e) => setFacility(e.target.value)}
+                name="facility"
+                value={task.facility}
+                onChange={handleInputChange}
                 placeholder="Enter facility"
-                className="w-full p-3 border border-gray-300 rounded-md"
+                className="w-full p-3 border border-gray-300 rounded-md shadow-sm"
                 required
               />
             </div>
             <div className="mb-4">
-              <label className="block text-gray-700 font-medium mb-2">Task Type</label>
+              <label className="block text-gray-700 font-medium mb-2">
+                Task Type
+              </label>
               <input
                 type="text"
-                value={taskType}
-                onChange={(e) => setTaskType(e.target.value)}
+                name="task_type"
+                value={task.task_type}
+                onChange={handleInputChange}
                 placeholder="Enter task type"
-                className="w-full p-3 border border-gray-300 rounded-md"
+                className="w-full p-3 border border-gray-300 rounded-md shadow-sm"
                 required
               />
             </div>
             <div className="mb-4">
-              <label className="block text-gray-700 font-medium mb-2">Priority</label>
+              <label className="block text-gray-700 font-medium mb-2">
+                Priority
+              </label>
               <select
-                value={priority}
-                onChange={(e) => setPriority(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-md"
+                name="priority"
+                value={task.priority}
+                onChange={handleInputChange}
+                className="w-full p-3 border border-gray-300 rounded-md shadow-sm"
                 required
               >
-                <option value="high">High</option>
-                <option value="medium">Medium</option>
                 <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
               </select>
             </div>
           </div>
@@ -180,23 +242,43 @@ const CreateTaskStepperForm = () => {
       case 3:
         return (
           <div>
-            <h3 className="text-xl font-bold mb-4">Description & Submission</h3>
+            <h3 className="text-xl font-bold mb-4">Review & Submit</h3>
             <div className="mb-4">
-              <label className="block text-gray-700 font-medium mb-2">Description</label>
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Enter description"
-                className="w-full p-3 border border-gray-300 rounded-md"
-                required
-              />
+              <p>
+                <strong>Task Name:</strong> {task.title}
+              </p>
+              <p>
+                <strong>Date:</strong>{" "}
+                {task.date ? new Date(task.date).toLocaleDateString() : ""}
+              </p>
+              <p>
+                <strong>Start Time:</strong>{" "}
+                {task.start_time
+                  ? new Date(task.start_time).toLocaleTimeString()
+                  : ""}
+              </p>
+              <p>
+                <strong>End Time:</strong>{" "}
+                {task.end_time
+                  ? new Date(task.end_time).toLocaleTimeString()
+                  : ""}
+              </p>
+              <p>
+                <strong>Assigned To:</strong> {task.assigned_to}
+              </p>
+              <p>
+                <strong>Facility:</strong> {task.facility}
+              </p>
+              <p>
+                <strong>Task Type:</strong> {task.task_type}
+              </p>
+              <p>
+                <strong>Priority:</strong> {task.priority}
+              </p>
+              <p>
+                <strong>Description:</strong> {task.description}
+              </p>
             </div>
-            <button
-              type="submit"
-              className="w-full bg-blue-500 text-white p-3 rounded-md hover:bg-blue-600"
-            >
-              Submit Task
-            </button>
           </div>
         );
       default:
@@ -205,51 +287,55 @@ const CreateTaskStepperForm = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-lg">
-      <h2 className="text-2xl font-bold mb-6">Create New Task</h2>
-
-      {/* Progress Bar */}
+    <div  className="max-w-4xl mx-auto bg-white shadow-md rounded-lg">
       <ProgressBar
-        percent={(currentStep - 1) * 50}
-        filledBackground="linear-gradient(to right, #00f, #00bfff)"
+        percent={currentStep * 33.33}
+        filledBackground="linear-gradient(to right, #4db6ac, #003d34)"
+        className="mb-6"
       >
-        <Step transition="scale">
-          {({ accomplished }) => (
-            <div className={`step ${accomplished ? "completed" : ""}`}></div>
+        <Step>
+          {({ active }: any) => (
+            <div className={`step ${active ? "active" : ""}`}></div>
           )}
         </Step>
-        <Step transition="scale">
-          {({ accomplished }) => (
-            <div className={`step ${accomplished ? "completed" : ""}`}></div>
+        <Step>
+          {({ active }: any) => (
+            <div className={`step ${active ? "active" : ""}`}></div>
           )}
         </Step>
-        <Step transition="scale">
-          {({ accomplished }) => (
-            <div className={`step ${accomplished ? "completed" : ""}`}></div>
+        <Step>
+          {({ active }: any) => (
+            <div className={`step ${active ? "active" : ""}`}></div>
           )}
         </Step>
       </ProgressBar>
 
-      {/* Form Steps */}
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="p-6">
         {renderStep()}
-        <div className="mt-6 flex justify-between">
+        <div className="flex justify-between mt-6">
           {currentStep > 1 && (
             <button
               type="button"
-              className="px-4 py-2 bg-gray-300 rounded-md"
               onClick={prevStep}
+              className="bg-gray-400 text-white p-2 rounded"
             >
               Previous
             </button>
           )}
-          {currentStep < 3 && (
+          {currentStep < 3 ? (
             <button
               type="button"
-              className="px-4 py-2 bg-blue-500 text-white rounded-md"
               onClick={nextStep}
+              className="bg-blue-500 text-white p-2 rounded"
             >
               Next
+            </button>
+          ) : (
+            <button
+              type="submit"
+              className="bg-green-500 text-white p-2 rounded"
+            >
+              {isEditing ? "Update Task" : "Create Task"}
             </button>
           )}
         </div>
