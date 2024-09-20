@@ -37,6 +37,7 @@ export default function TaskComponent() {
   const handleDelete = async (id: string) => {
     try {
       await deleteTask(id); // Delete task from service
+      alert('Task deletion successful');
       setTasks(tasks.filter((task: any) => task._id !== id)); // Update task list after deletion
     } catch (error) {
       setError("Failed to delete task.");

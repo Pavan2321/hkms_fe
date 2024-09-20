@@ -51,7 +51,7 @@ export const getTaskById = async (taskId: string) => {
 // Delete a task
 export const deleteTask = async (id: string) => {
   try {
-    const response = await axios.delete(`${API_URL}/${id}`);
+    const response = await axios.delete(`${API_URL}/tasks/${id}`);
     return response.data;
   } catch (error) {
     console.error("Error deleting task:", error);

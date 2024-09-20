@@ -65,7 +65,29 @@ const CreateTaskStepperForm = () => {
   };
 
   const handleDateChange = (date: Date | null, field: string) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (date && date < today) return;
+
     setTask((prevTask: any) => ({ ...prevTask, [field]: date }));
+  };
+
+  const getMinTime = (selectedDate: Date | null) => {
+    const today = new Date();
+
+    // Check if the selected date is today or if there's no selected date (initial render)
+    if (selectedDate) {
+      const isToday =
+        selectedDate.getDate() === today.getDate() &&
+        selectedDate.getMonth() === today.getMonth() &&
+        selectedDate.getFullYear() === today.getFullYear();
+
+      // Return current time if it's today
+      return isToday ? today : new Date(today.setHours(0, 0, 0, 0));
+    }
+
+    // If no date is selected, consider today's time
+    return today;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -158,6 +180,7 @@ const CreateTaskStepperForm = () => {
               <DatePicker
                 selected={task.date ? new Date(task.date) : null}
                 onChange={(date) => handleDateChange(date, "date")}
+                minDate={new Date()}
                 dateFormat="MMMM d, yyyy"
                 placeholderText="Select Date"
                 className="w-full p-3 border border-gray-300 rounded-md shadow-sm"
@@ -172,6 +195,9 @@ const CreateTaskStepperForm = () => {
                 <DatePicker
                   selected={task.start_time ? new Date(task.start_time) : null}
                   onChange={(date) => handleDateChange(date, "start_time")}
+                  minDate={new Date()} // Disable past dates
+                  minTime={getMinTime(task.start_time)} // Disable past times if today
+                  maxTime={new Date(new Date().setHours(23, 59, 59, 999))} // Max time is end of day
                   showTimeSelect
                   showTimeSelectOnly
                   timeIntervals={15}
@@ -189,6 +215,10 @@ const CreateTaskStepperForm = () => {
                 <DatePicker
                   selected={task.end_time ? new Date(task.end_time) : null}
                   onChange={(date) => handleDateChange(date, "end_time")}
+                  minTime={
+                    task.start_time ? new Date(task.start_time) : new Date()
+                  } // End time can't be before start time
+                  maxTime={new Date(new Date().setHours(23, 59, 59, 999))} // Max end time is end of day
                   showTimeSelect
                   showTimeSelectOnly
                   timeIntervals={15}
@@ -342,7 +372,7 @@ const CreateTaskStepperForm = () => {
         </Step>
       </ProgressBar>
 
-      <form onSubmit={handleSubmit} className="p-6">
+      <div className="p-6">
         {renderStep()}
         <div className="flex justify-between mt-6">
           {currentStep > 1 && (
@@ -365,14 +395,15 @@ const CreateTaskStepperForm = () => {
             </button>
           ) : (
             <button
-              type="submit"
+              type="button"
               className="bg-green-500 text-white p-2 rounded"
+              onClick={handleSubmit}
             >
               {isEditing ? "Update Task" : "Create Task"}
             </button>
           )}
         </div>
-      </form>
+      </div>
     </div>
   );
 };
