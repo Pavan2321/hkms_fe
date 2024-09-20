@@ -74,21 +74,21 @@ const CreateTaskStepperForm = () => {
 
   const getMinTime = (selectedDate: Date | null) => {
     const today = new Date();
-
-    // Check if the selected date is today or if there's no selected date (initial render)
-    if (selectedDate) {
+    
+    // Ensure selectedDate is a valid Date object
+    if (selectedDate && selectedDate instanceof Date) {
       const isToday =
         selectedDate.getDate() === today.getDate() &&
         selectedDate.getMonth() === today.getMonth() &&
         selectedDate.getFullYear() === today.getFullYear();
-
-      // Return current time if it's today
+        
+      // Return current time if it's today, otherwise return start of the day
       return isToday ? today : new Date(today.setHours(0, 0, 0, 0));
     }
-
+  
     // If no date is selected, consider today's time
     return today;
-  };
+  };  
 
   const handleSubmit = async (e: React.FormEvent) => {
     if (currentStep === 3) {
