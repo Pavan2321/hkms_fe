@@ -65,30 +65,8 @@ const CreateTaskStepperForm = () => {
   };
 
   const handleDateChange = (date: Date | null, field: string) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    if (date && date < today) return;
-
     setTask((prevTask: any) => ({ ...prevTask, [field]: date }));
   };
-
-  const getMinTime = (selectedDate: Date | null) => {
-    const today = new Date();
-    
-    // Ensure selectedDate is a valid Date object
-    if (selectedDate && selectedDate instanceof Date) {
-      const isToday =
-        selectedDate.getDate() === today.getDate() &&
-        selectedDate.getMonth() === today.getMonth() &&
-        selectedDate.getFullYear() === today.getFullYear();
-        
-      // Return current time if it's today, otherwise return start of the day
-      return isToday ? today : new Date(today.setHours(0, 0, 0, 0));
-    }
-  
-    // If no date is selected, consider today's time
-    return today;
-  };  
 
   const handleSubmit = async (e: React.FormEvent) => {
     if (currentStep === 3) {
@@ -196,8 +174,14 @@ const CreateTaskStepperForm = () => {
                   selected={task.start_time ? new Date(task.start_time) : null}
                   onChange={(date) => handleDateChange(date, "start_time")}
                   minDate={new Date()} // Disable past dates
-                  minTime={getMinTime(task.start_time)} // Disable past times if today
-                  maxTime={new Date(new Date().setHours(23, 59, 59, 999))} // Max time is end of day
+                  minTime={
+                    task.date &&
+                    new Date(task.date).toDateString() ===
+                      new Date().toDateString()
+                      ? new Date() // Set minTime to the current time if the selected date is today
+                      : new Date(new Date().setHours(0, 0, 0, 0)) // Set minTime to midnight if the selected date is in the future
+                  }
+                  maxTime={new Date(new Date().setHours(23, 59, 59, 999))} // Set maxTime to the end of the day
                   showTimeSelect
                   showTimeSelectOnly
                   timeIntervals={15}
@@ -249,7 +233,7 @@ const CreateTaskStepperForm = () => {
               >
                 <option value="">Select a user</option>
                 {users.map((user: any) => (
-                  <option key={user?._id} value={user?._first_name}>
+                  <option key={user?._id} value={user?.first_name}>
                     {user?.first_name}
                   </option>
                 ))}
@@ -294,6 +278,7 @@ const CreateTaskStepperForm = () => {
                 className="w-full p-3 border border-gray-300 rounded-md shadow-sm"
                 required
               >
+                <option value="">Select priority</option>
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>
                 <option value="high">High</option>
