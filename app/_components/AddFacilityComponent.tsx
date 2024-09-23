@@ -1,42 +1,78 @@
 // app/_components/AddFacilityComponent.tsx
 
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams,  } from "next/navigation";
 import Header from "./Header";
+import { createFacilities, getFacilitiesById, updateFacilities } from "../services/facilityServices";
 
 export default function AddFacilityComponent() {
-  const [facilityName, setFacilityName] = useState("");
+  const [facility, setFacility] = useState<any>({
+    id: "1",
+    name: "",
+    details: ""
+  });
+  const searchParams = useSearchParams();
+  const facilityId = searchParams.get("taskId");
   const router = useRouter();
+  const [isEditing, setIsEditing] = useState<boolean>(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (facilityId) {
+      const fetchTask = async () => {
+        try {
+          const data = await getFacilitiesById(facilityId);
+          setFacility(data);
+          setIsEditing(true);
+        } catch (error) {
+          console.log(error);
+        }
+      };
+      fetchTask();
+    }
+  }, [facilityId]);
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setFacility((prevTask: any) => ({ ...prevTask, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Get existing facilities from localStorage
-    const existingFacilities = JSON.parse(localStorage.getItem("facilities") || "[]");
-
-    // Add new facility to the list
-    const updatedFacilities = [...existingFacilities, { name: facilityName }];
-
-    // Save updated list back to localStorage
-    localStorage.setItem("facilities", JSON.stringify(updatedFacilities));
-
-    // Navigate back to facilities list
-    router.push("/facilities");
+    const data = {
+      id: facility.id,
+      name: facility.name,
+      details: facility.details
+    };
+    try {
+      if (facilityId && isEditing) {
+        await updateFacilities(facilityId, data);
+        setIsEditing(false);
+        router.push("/facilities");
+      }else {
+      await createFacilities(data);
+      router.push("/facilities");
+      }
+    } catch (error) {
+      console.error("Error creating task:", error);
+    }
   };
 
   return (
     <div className="min-h-full w-full">
       <Header />
-      <div className="p-4">
+      <div className="p-4 max-w-lg mx-auto my-0">
         <h2 className="text-2xl font-semibold mb-4">Add Facility</h2>
         <form onSubmit={handleSubmit}>
           <label className="block mb-2">
             Facility Name:
             <input
               type="text"
-              value={facilityName}
-              onChange={(e) => setFacilityName(e.target.value)}
+              name="name"
+              value={facility.name}
+              onChange={handleInputChange}
               className="w-full border p-2 mt-1"
               placeholder="Enter facility name"
             />

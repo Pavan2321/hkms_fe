@@ -4,21 +4,42 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Header from "./Header";
+import { deleteFacility, getFacilities } from "../services/facilityServices";
 
 export default function FacilityComponent() {
   const [facilities, setFacilities] = useState<any[]>([]); // Array to store facilities
   const router = useRouter();
 
   useEffect(() => {
-    // Load facilities from localStorage
-    const storedFacilities = JSON.parse(
-      localStorage.getItem("facilities") || "[]"
-    );
-    setFacilities(storedFacilities);
+    const fetchFacilities = async () => {
+      try {
+        const response = await getFacilities(); // Fetch tasks from service
+        setFacilities(response);
+        console.log(response, "list of tasks");
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchFacilities();
   }, []);
 
   const handleAddFacility = () => {
     router.push("/add-facility");
+  };
+
+  const handleEdit = (id: string) => {
+    router.push(`/add-facility/?facilityId=${id}`);
+  };
+
+    const handleDelete = async (id: string) => {
+    try {
+      alert('Are you sure want to delete task');
+      await deleteFacility(id); // Delete task from service
+      setFacilities(facilities.filter((facility: any) => facility._id !== id)); // Update task list after deletion
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
