@@ -4,39 +4,39 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Header from "./Header";
-import { deleteFacility, getFacilities } from "../services/facilityServices";
+import { deleteService, getServices } from "../services/serviceServices";
 
-export default function FacilityComponent() {
-  const [facilities, setFacilities] = useState<any[]>([]); // Array to store facilities
+export default function ServiceComponent() {
+  const [services, setServices] = useState<any[]>([]); // Array to store facilities
   const router = useRouter();
 
   useEffect(() => {
-    const fetchFacilities = async () => {
+    const fetchServices = async () => {
       try {
-        const response = await getFacilities(); // Fetch tasks from service
-        setFacilities(response);
+        const response = await getServices(); // Fetch tasks from service
+        setServices(response);
         console.log(response, "list of tasks");
       } catch (error) {
         console.error(error);
       }
     };
 
-    fetchFacilities();
+    fetchServices();
   }, []);
 
-  const handleAddFacility = () => {
-    router.push("/add-facility");
+  const handleAddService = () => {
+    router.push("/add-service");
   };
 
   const handleEdit = (id: string) => {
-    router.push(`/add-facility/?facilityId=${id}`);
+    router.push(`/add-service/?serviceId=${id}`);
   };
 
   const handleDelete = async (id: string) => {
     try {
       alert('Are you sure want to delete task');
-      await deleteFacility(id); // Delete task from service
-      setFacilities(facilities.filter((facility: any) => facility._id !== id)); // Update task list after deletion
+      await deleteService(id); // Delete task from service
+      setServices(services.filter((service: any) => service._id !== id)); // Update task list after deletion
     } catch (error) {
       console.error(error);
     }
@@ -46,24 +46,24 @@ export default function FacilityComponent() {
     <div className="min-h-full w-full">
       <Header />
       <div className="p-4">
-        <h2 className="text-2xl font-semibold mb-4">Facilities</h2>
+        <h2 className="text-2xl font-semibold mb-4">Services</h2>
 
         <div className="grid grid-cols-3 gap-4">
-          {facilities.map((facility, index) => (
+          {services.map((service, index) => (
             <div
               key={index}
               className="bg-white p-4 shadow rounded text-center"
             >
-              {facility.name}
+              {service.name}
             </div>
           ))}
         </div>
 
         <button
-          onClick={handleAddFacility}
+          onClick={handleAddService}
           className="bg-green-600 text-white px-4 py-2 rounded mt-4"
         >
-          + Add Facility
+          + Add Service
         </button>
       </div>
     </div>

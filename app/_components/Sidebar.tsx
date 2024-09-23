@@ -33,6 +33,12 @@ export default function Sidebar() {
               Facilities
             </Link>
           </li>
+          <li className="flex items-center space-x-2 hover:bg-gray-700 p-2 rounded">
+            <FaUpwork />
+            <Link href="/services" className="font-semibold">
+              Services
+            </Link>
+          </li>
         </ul>
       </nav>
     </aside>

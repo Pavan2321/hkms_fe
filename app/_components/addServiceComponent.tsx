@@ -1,28 +1,28 @@
-// app/_components/AddFacilityComponent.tsx
+// app/_components/AddServicesComponent.tsx
 
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams,  } from "next/navigation";
 import Header from "./Header";
-import { createFacilities, getFacilitiesById, updateFacilities } from "../services/facilityServices";
+import { createServices, getServicesById, updateServices } from "../services/serviceServices";
 
-export default function AddFacilityComponent() {
-  const [facility, setFacility] = useState<any>({
+export default function AddServiceComponent() {
+  const [service, setService] = useState<any>({
     id: "1",
     name: "",
     details: ""
   });
   const searchParams = useSearchParams();
-  const facilityId = searchParams.get("facilityId");
+  const serviceId = searchParams.get("serviceId");
   const router = useRouter();
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
   useEffect(() => {
-    if (facilityId) {
+    if (serviceId) {
       const fetchTask = async () => {
         try {
-          const data = await getFacilitiesById(facilityId);
-          setFacility(data);
+          const data = await getServicesById(serviceId);
+          setService(data);
           setIsEditing(true);
         } catch (error) {
           console.log(error);
@@ -30,30 +30,30 @@ export default function AddFacilityComponent() {
       };
       fetchTask();
     }
-  }, [facilityId]);
+  }, [serviceId]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setFacility((prevTask: any) => ({ ...prevTask, [name]: value }));
+    setService((prevTask: any) => ({ ...prevTask, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const data = {
-      id: facility.id,
-      name: facility.name,
-      details: facility.details
+      id: service.id,
+      name: service.name,
+      details: service.details
     };
     try {
-      if (facilityId && isEditing) {
-        await updateFacilities(facilityId, data);
+      if (serviceId && isEditing) {
+        await updateServices(serviceId, data);
         setIsEditing(false);
-        router.push("/facilities");
+        router.push("/services");
       }else {
-      await createFacilities(data);
-      router.push("/facilities");
+      await createServices(data);
+      router.push("/services");
       }
     } catch (error) {
       console.error("Error creating task:", error);
@@ -64,17 +64,17 @@ export default function AddFacilityComponent() {
     <div className="min-h-full w-full">
       <Header />
       <div className="p-4 max-w-lg mx-auto my-0">
-        <h2 className="text-2xl font-semibold mb-4">Add Facility</h2>
+        <h2 className="text-2xl font-semibold mb-4">Add Service</h2>
         <form onSubmit={handleSubmit}>
           <label className="block mb-2">
-            Facility Name:
+            Service Name:
             <input
               type="text"
               name="name"
-              value={facility.name}
+              value={service.name}
               onChange={handleInputChange}
               className="w-full border p-2 mt-1"
-              placeholder="Enter facility name"
+              placeholder="Enter service name"
             />
           </label>
           <button
