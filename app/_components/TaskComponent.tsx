@@ -69,7 +69,7 @@ export default function TaskComponent() {
           <thead>
             <tr>
               <th className="p-2 border-b text-left">Task Name</th>
-              <th className="p-2 border-b text-left">Assigned</th>
+              <th className="p-2 border-b text-left">Assigned To</th>
               <th className="p-2 border-b text-left">Facility</th>
               <th className="p-2 border-b text-left">Task Type</th>
               <th className="p-2 border-b text-left">Priority</th>
@@ -84,7 +84,7 @@ export default function TaskComponent() {
               tasks.map((task: any) => (
                 <tr key={task._id}>
                   <td className="p-2 border-b">{task.title}</td>
-                  <td className="p-2 border-b">{task.assigned_to}</td>
+                  <td className="p-2 border-b">{task.user?.first_name} {task.user?.last_name}</td>
                   <td className="p-2 border-b">{task.facility?.name}</td>
                   <td className="p-2 border-b">{task.service?.name}</td>
                   <td className="p-2 border-b">{task.priority}</td>
