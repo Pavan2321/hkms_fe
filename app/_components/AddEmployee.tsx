@@ -4,8 +4,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { getEmployeeById } from "@/app/services/userService";
 import { registerUser, updateUser } from "@/app/services/authService";
 import Header from "./Header";
+import { useLoader } from "../hooks/useLoader";
+import Spinner from "./Spinner";
 
 export default function AddEmployee() {
+  const { loading, stopLoader } = useLoader();
   const [employee, setEmployee] = useState<any>({
     first_name: "",
     last_name: "",
@@ -31,6 +34,7 @@ export default function AddEmployee() {
           const employeeData = await getEmployeeById(employeeId); // Fetch employee by ID
           setEmployee(employeeData);
           setIsEditing(true);
+          stopLoader();
           console.log(employeeData, 'emp data');
         } catch (error) {
           setError("Failed to fetch employee data.");
@@ -39,7 +43,7 @@ export default function AddEmployee() {
 
       fetchEmployee();
     }
-  }, [employeeId]);
+  }, [employeeId, stopLoader]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -77,6 +81,10 @@ export default function AddEmployee() {
   const handleCancel = () => {
     router.push("/employee");
   };
+
+  if(loading) {
+    return <Spinner />;
+  }
 
   return (
     <div className="min-h-full w-full">

@@ -5,8 +5,11 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams,  } from "next/navigation";
 import Header from "./Header";
 import { createFacilities, getFacilitiesById, updateFacilities } from "../services/facilityServices";
+import { useLoader } from "../hooks/useLoader";
+import Spinner from "./Spinner";
 
 export default function AddFacilityComponent() {
+  const { loading, stopLoader } = useLoader();
   const [facility, setFacility] = useState<any>({
     id: "1",
     name: "",
@@ -24,13 +27,14 @@ export default function AddFacilityComponent() {
           const data = await getFacilitiesById(facilityId);
           setFacility(data);
           setIsEditing(true);
+          stopLoader();
         } catch (error) {
           console.log(error);
         }
       };
       fetchTask();
     }
-  }, [facilityId]);
+  }, [facilityId, stopLoader]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -59,6 +63,10 @@ export default function AddFacilityComponent() {
       console.error("Error creating task:", error);
     }
   };
+
+  if(loading) {
+    return <Spinner />;
+  }
 
   return (
     <div className="min-h-full w-full">

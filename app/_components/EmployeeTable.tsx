@@ -5,8 +5,11 @@ import { getUsers } from "@/app/services/userService"; // Import the service
 import { FiMoreHorizontal } from "react-icons/fi";
 import { useRouter } from "next/navigation";
 import { deleteUser } from "../services/authService";
+import { useLoader } from "../hooks/useLoader";
+import Spinner from "./Spinner";
 
 export default function EmployeeTable() {
+  const { loading, stopLoader } = useLoader();
   const [searchTerm, setSearchTerm] = useState("");
   const [employees, setEmployees] = useState<any[]>([]); // Ensure it's an array
   const [filteredEmployees, setFilteredEmployees] = useState<any[]>([]); // Ensure it's an array
@@ -23,20 +26,23 @@ export default function EmployeeTable() {
         if (Array.isArray(usersData)) {
           setEmployees(usersData); // Set employees to state
           setFilteredEmployees(usersData); // Initially display all users
+          stopLoader();
         } else {
           console.error("Fetched data is not an array:", usersData);
           setEmployees([]); // Default to empty array if data is not as expected
           setFilteredEmployees([]); // Default to empty array
+          stopLoader();
         }
       } catch (error) {
         console.error("Failed to fetch users:", error);
         setEmployees([]); // Default to empty array on error
         setFilteredEmployees([]); // Default to empty array
+        stopLoader();
       }
     };
 
     fetchUsers();
-  }, []);
+  }, [stopLoader]);
 
   const handleSearch = () => {
     if (!Array.isArray(employees)) return; // Add a check to ensure employees is an array
@@ -65,19 +71,23 @@ export default function EmployeeTable() {
   };
 
   const handleEdit = (employeeId: string) => {
-    router.push(`/add-employee?empId=${employeeId}`)
+    router.push(`/add-employee?empId=${employeeId}`);
   };
 
   // Function to handle delete
   const handleDelete = async (employeeId: string) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this employee?");
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this employee?"
+    );
 
     if (!confirmDelete) return;
 
     try {
       await deleteUser(employeeId); // Call the API to delete the user
       setEmployees((prev) => {
-        const updatedEmployees = prev.filter(employee => employee._id !== employeeId);
+        const updatedEmployees = prev.filter(
+          (employee) => employee._id !== employeeId
+        );
         setFilteredEmployees(updatedEmployees); // Update filteredEmployees to reflect the change
         return updatedEmployees;
       });
@@ -87,6 +97,10 @@ export default function EmployeeTable() {
       console.error(error);
     }
   };
+
+  if (loading) {
+    return <Spinner />;
+  }
 
   return (
     <div className="min-h-full w-full">
@@ -139,7 +153,9 @@ export default function EmployeeTable() {
                 filteredEmployees.map((employee: any, index: number) => (
                   <tr key={index}>
                     <td className="p-2 border-b">{employee.user_id || "--"}</td>
-                    <td className="p-2 border-b">{employee.first_name + " " + employee.last_name}</td>
+                    <td className="p-2 border-b">
+                      {employee.first_name + " " + employee.last_name}
+                    </td>
                     <td className="p-2 border-b">{employee.email}</td>
                     <td className="p-2 border-b">{employee.role}</td>
                     <td className="p-2 border-b text-center relative">

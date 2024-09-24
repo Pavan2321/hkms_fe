@@ -5,8 +5,11 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Header from "./Header";
 import { deleteFacility, getFacilities } from "../services/facilityServices";
+import { useLoader } from "../hooks/useLoader";
+import Spinner from "./Spinner";
 
 export default function FacilityComponent() {
+  const { loading, stopLoader } = useLoader();
   const [facilities, setFacilities] = useState<any[]>([]); // Array to store facilities
   const router = useRouter();
 
@@ -15,6 +18,7 @@ export default function FacilityComponent() {
       try {
         const response = await getFacilities(); // Fetch tasks from service
         setFacilities(response);
+        stopLoader();
         console.log(response, "list of tasks");
       } catch (error) {
         console.error(error);
@@ -22,7 +26,7 @@ export default function FacilityComponent() {
     };
 
     fetchFacilities();
-  }, []);
+  }, [stopLoader]);
 
   const handleAddFacility = () => {
     router.push("/add-facility");
@@ -34,13 +38,17 @@ export default function FacilityComponent() {
 
   const handleDelete = async (id: string) => {
     try {
-      alert('Are you sure want to delete task');
+      alert("Are you sure want to delete task");
       await deleteFacility(id); // Delete task from service
       setFacilities(facilities.filter((facility: any) => facility._id !== id)); // Update task list after deletion
     } catch (error) {
       console.error(error);
     }
   };
+
+  if (loading) {
+    return <Spinner />;
+  }
 
   return (
     <div className="min-h-full w-full">

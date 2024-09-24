@@ -5,8 +5,11 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Header from "./Header";
 import { deleteService, getServices } from "../services/serviceServices";
+import { useLoader } from "../hooks/useLoader";
+import Spinner from "./Spinner";
 
 export default function ServiceComponent() {
+  const { loading, stopLoader } = useLoader();
   const [services, setServices] = useState<any[]>([]); // Array to store facilities
   const router = useRouter();
 
@@ -15,6 +18,7 @@ export default function ServiceComponent() {
       try {
         const response = await getServices(); // Fetch tasks from service
         setServices(response);
+        stopLoader();
         console.log(response, "list of tasks");
       } catch (error) {
         console.error(error);
@@ -41,6 +45,10 @@ export default function ServiceComponent() {
       console.error(error);
     }
   };
+
+  if(loading) {
+    return <Spinner />;
+  }
 
   return (
     <div className="min-h-full w-full">

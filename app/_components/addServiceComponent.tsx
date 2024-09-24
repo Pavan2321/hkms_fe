@@ -5,8 +5,11 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams,  } from "next/navigation";
 import Header from "./Header";
 import { createServices, getServicesById, updateServices } from "../services/serviceServices";
+import { useLoader } from "../hooks/useLoader";
+import Spinner from "./Spinner";
 
 export default function AddServiceComponent() {
+  const { loading, stopLoader } = useLoader();
   const [service, setService] = useState<any>({
     id: "1",
     name: "",
@@ -24,13 +27,14 @@ export default function AddServiceComponent() {
           const data = await getServicesById(serviceId);
           setService(data);
           setIsEditing(true);
+          stopLoader();
         } catch (error) {
           console.log(error);
         }
       };
       fetchTask();
     }
-  }, [serviceId]);
+  }, [serviceId, stopLoader]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -59,6 +63,10 @@ export default function AddServiceComponent() {
       console.error("Error creating task:", error);
     }
   };
+
+  if(loading) {
+    return <Spinner />;
+  }
 
   return (
     <div className="min-h-full w-full">

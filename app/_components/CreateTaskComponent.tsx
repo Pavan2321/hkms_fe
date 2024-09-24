@@ -6,8 +6,11 @@ import { getUsers } from "../services/userService";
 import { ProgressBar, Step } from "react-step-progress-bar";
 import { useRouter, useSearchParams } from "next/navigation";
 import "react-step-progress-bar/styles.css";
+import { useLoader } from "../hooks/useLoader";
+import Spinner from "./Spinner";
 
 const CreateTaskStepperForm = () => {
+  const { loading, stopLoader } = useLoader();
   const [currentStep, setCurrentStep] = useState(1);
   const [task, setTask] = useState<any>({
     assigned_to: "",
@@ -35,12 +38,13 @@ const CreateTaskStepperForm = () => {
       try {
         const response = await getUsers();
         setUsers(response);
+        stopLoader();
       } catch (error) {
         setError("Error fetching users");
       }
     };
     fetchUsers();
-  }, []);
+  }, [stopLoader]);
 
   useEffect(() => {
     if (taskId) {
@@ -333,6 +337,10 @@ const CreateTaskStepperForm = () => {
     }
   };
 
+  if(loading) {
+    return <Spinner />;
+  }
+  
   return (
     <div className="max-w-4xl mx-auto bg-white shadow-md rounded-lg">
       <ProgressBar

@@ -1,8 +1,26 @@
-// _components/Dashboard.tsx
+"use client";
 import Header from "@/app/_components/Header";
 import Sidebar from "@/app/_components/Sidebar"; // Import the Sidebar component
+import Spinner from "@/app/_components/Spinner";
+import { useLoader } from "@/app/hooks/useLoader";
+import { useState, useEffect } from "react";
 
 export default function Dashboard() {
+  const { loading, stopLoader } = useLoader();
+
+  useEffect(() => {
+    stopLoader();
+  }, [stopLoader]);
+
+  // Render the loader while loading is true
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Spinner /> {/* The loader/spinner component */}
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex">
       {/* Sidebar */}

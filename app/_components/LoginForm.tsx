@@ -3,8 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { loginUser } from "@/app/services/authService"; // Ensure authService exists
+import { useLoader } from "../hooks/useLoader";
+import Spinner from "./Spinner";
 
 export default function LoginForm() {
+  const { loading, stopLoader } = useLoader();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -16,17 +19,21 @@ export default function LoginForm() {
 
     try {
       const data = await loginUser(email, password);
-      alert("Login successful!");
 
       // Store the token in localStorage
       localStorage.setItem("token", data.success.body.token);
 
       // Redirect to the dashboard or reload the page to trigger the Sidebar display
+      stopLoader();
       router.push("/dashboard");
     } catch (err: any) {
       setError(err.message || "Login failed");
     }
   };
+
+  if(loading) {
+    return <Spinner />;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">

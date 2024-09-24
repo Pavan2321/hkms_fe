@@ -4,8 +4,11 @@
 import { useEffect, useState } from "react";
 import { getTasks, deleteTask } from "@/app/services/tasksService"; // Import task services
 import { useRouter } from "next/navigation";
+import Spinner from "./Spinner";
+import { useLoader } from "../hooks/useLoader";
 
 export default function TaskComponent() {
+  const { loading, stopLoader } = useLoader();
   const [tasks, setTasks] = useState<any[]>([]); // Array to store tasks
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -16,6 +19,7 @@ export default function TaskComponent() {
       try {
         const response = await getTasks(); // Fetch tasks from service
         setTasks(response);
+        stopLoader();
         console.log(response, "list of tasks");
       } catch (error) {
         setError("Failed to fetch tasks.");
@@ -24,7 +28,7 @@ export default function TaskComponent() {
     };
 
     fetchTasks();
-  }, []);
+  }, [stopLoader]);
 
   const handleCreateTask = () => {
     router.push("/create-task");
@@ -44,6 +48,10 @@ export default function TaskComponent() {
       console.error(error);
     }
   };
+
+  if(loading) {
+    return <Spinner />;
+  }
 
   return (
     <>
