@@ -8,7 +8,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import "react-step-progress-bar/styles.css";
 import { useLoader } from "../hooks/useLoader";
 import Spinner from "./Spinner";
-import axios from "axios";
 import { getFacilities } from "../services/facilityServices";
 import { getServices } from "../services/serviceServices";
 
@@ -21,7 +20,8 @@ const CreateTaskStepperForm = () => {
     date: "",
     description: "",
     end_time: "",
-    facility: "",
+    facility_id: "",
+    service_id: "",
     priority: "",
     start_time: "",
     status: "",
@@ -58,7 +58,9 @@ const CreateTaskStepperForm = () => {
       const fetchTask = async () => {
         try {
           const taskData = await getTaskById(taskId);
+          console.log(taskData, 'Task data')
           setTask(taskData);
+          console.log(task, 'set task data')
           setIsEditing(true);
         } catch (error) {
           setError("Error getting the task");
@@ -68,22 +70,25 @@ const CreateTaskStepperForm = () => {
     }
   }, [taskId]);
 
-  const fetchFacility = async() =>{
+  const fetchFacility = async () => {
     try {
       const respone = await getFacilities();
-      setFacilities(respone)
+      console.log(respone, 'facilities')
+      setFacilities(respone);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
-  const fetchServices = async() =>{
+  };
+
+  const fetchServices = async () => {
     try {
       const respone = await getServices();
-      setServices(respone)
+      console.log(respone, 'services')
+      setServices(respone);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -97,8 +102,8 @@ const CreateTaskStepperForm = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (currentStep === 3) {
-      e.preventDefault();
       const taskData = {
         title: task.title,
         description: task.description,
@@ -139,22 +144,22 @@ const CreateTaskStepperForm = () => {
         !task.service_id ||
         !task.priority
       ) {
+        console.log(task.assigned_to, task.facility_id, task.service_id, task.priority, 'task');
         setError("Please fill in all required fields in Step 2.");
-        return;
+        return; // Prevent moving to the next step if validation fails
       }
     }
 
     if (currentStep < 3) {
       setCurrentStep(currentStep + 1); // Move to the next step if validation passes
+      setError(null); // Clear any previous errors
     }
-    console.log(currentStep, "current");
   };
 
   const prevStep = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1); // Ensure the form doesn't go below step 1
     }
-    console.log(currentStep, "previous");
   };
 
   const renderStep = () => {
@@ -201,15 +206,15 @@ const CreateTaskStepperForm = () => {
                 <DatePicker
                   selected={task.start_time ? new Date(task.start_time) : null}
                   onChange={(date) => handleDateChange(date, "start_time")}
-                  minDate={new Date()} // Disable past dates
+                  minDate={new Date()}
                   minTime={
                     task.date &&
                     new Date(task.date).toDateString() ===
                       new Date().toDateString()
-                      ? new Date() // Set minTime to the current time if the selected date is today
-                      : new Date(new Date().setHours(0, 0, 0, 0)) // Set minTime to midnight if the selected date is in the future
+                      ? new Date()
+                      : new Date(new Date().setHours(0, 0, 0, 0))
                   }
-                  maxTime={new Date(new Date().setHours(23, 59, 59, 999))} // Set maxTime to the end of the day
+                  maxTime={new Date(new Date().setHours(23, 59, 59, 999))}
                   showTimeSelect
                   showTimeSelectOnly
                   timeIntervals={15}
@@ -229,8 +234,8 @@ const CreateTaskStepperForm = () => {
                   onChange={(date) => handleDateChange(date, "end_time")}
                   minTime={
                     task.start_time ? new Date(task.start_time) : new Date()
-                  } // End time can't be before start time
-                  maxTime={new Date(new Date().setHours(23, 59, 59, 999))} // Max end time is end of day
+                  }
+                  maxTime={new Date(new Date().setHours(23, 59, 59, 999))}
                   showTimeSelect
                   showTimeSelectOnly
                   timeIntervals={15}
@@ -259,10 +264,12 @@ const CreateTaskStepperForm = () => {
                 className="w-full p-3 border border-gray-300 rounded-md shadow-sm"
                 required
               >
-                <option value="">Select a user</option>
-                {users.map((user: any) => (
-                  <option key={user?._id} value={user?.first_name}>
-                    {user?.first_name}
+                <option value="" disabled>
+                  Select user
+                </option>
+                {users.map((user) => (
+                  <option key={user._id} value={user._id}>
+                    {user.first_name}
                   </option>
                 ))}
               </select>
@@ -272,35 +279,39 @@ const CreateTaskStepperForm = () => {
                 Facility
               </label>
               <select
-                 name="facility_id"
-                 value={task.facility}
-                 onChange={handleInputChange}
+                name="facility_id"
+                value={task.facility_id}
+                onChange={handleInputChange}
                 className="w-full p-3 border border-gray-300 rounded-md shadow-sm"
                 required
               >
-                <option value="">Select a facility</option>
-                {facilities.map((facility: any) => (
-                  <option key={facility?.id} value={facility?.id}>
-                    {facility?.name}
+                <option value="" disabled>
+                  Select facility
+                </option>
+                {facilities.map((facility) => (
+                  <option key={facility._id} value={facility._id}>
+                    {facility.name}
                   </option>
                 ))}
               </select>
             </div>
             <div className="mb-4">
               <label className="block text-gray-700 font-medium mb-2">
-                Task Type
+                Service
               </label>
               <select
-                 name="service_id"
-                 value={task.task_type}
-                 onChange={handleInputChange}
+                name="service_id"
+                value={task.service_id}
+                onChange={handleInputChange}
                 className="w-full p-3 border border-gray-300 rounded-md shadow-sm"
                 required
               >
-                <option value="">Select a service</option>
-                {services.map((service: any) => (
-                  <option key={service?.id} value={service?.id}>
-                    {service?.name}
+                <option value="" disabled>
+                  Select service
+                </option>
+                {services.map((service) => (
+                  <option key={service._id} value={service._id}>
+                    {service.name}
                   </option>
                 ))}
               </select>
@@ -316,7 +327,9 @@ const CreateTaskStepperForm = () => {
                 className="w-full p-3 border border-gray-300 rounded-md shadow-sm"
                 required
               >
-                <option value="">Select priority</option>
+                <option value="" disabled>
+                  Select priority
+                </option>
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>
                 <option value="high">High</option>
@@ -328,42 +341,22 @@ const CreateTaskStepperForm = () => {
         return (
           <div>
             <h3 className="text-xl font-bold mb-4">Review & Submit</h3>
-            <div className="mb-4">
-              <p>
-                <strong>Task Name:</strong> {task.title}
-              </p>
-              <p>
-                <strong>Date:</strong>{" "}
-                {task.date ? new Date(task.date).toLocaleDateString() : ""}
-              </p>
-              <p>
-                <strong>Start Time:</strong>{" "}
-                {task.start_time
-                  ? new Date(task.start_time).toLocaleTimeString()
-                  : ""}
-              </p>
-              <p>
-                <strong>End Time:</strong>{" "}
-                {task.end_time
-                  ? new Date(task.end_time).toLocaleTimeString()
-                  : ""}
-              </p>
-              <p>
-                <strong>Assigned To:</strong> {task.assigned_to}
-              </p>
-              <p>
-                <strong>Facility:</strong> {task.facility}
-              </p>
-              <p>
-                <strong>Task Type:</strong> {task.task_type}
-              </p>
-              <p>
-                <strong>Priority:</strong> {task.priority}
-              </p>
-              <p>
-                <strong>Description:</strong> {task.description}
-              </p>
-            </div>
+            <p>Task Name: {task.title}</p>
+            <p>Description: {task.description}</p>
+            <p>Date: {task.date && new Date(task.date).toLocaleDateString()}</p>
+            <p>
+              Start Time:{" "}
+              {task.start_time &&
+                new Date(task.start_time).toLocaleTimeString()}
+            </p>
+            <p>
+              End Time:{" "}
+              {task.end_time && new Date(task.end_time).toLocaleTimeString()}
+            </p>
+            <p>Assigned To: {task.assigned_to}</p>
+            <p>Facility: {task.facility_id}</p>
+            <p>Service: {task.service_id}</p>
+            <p>Priority: {task.priority}</p>
           </div>
         );
       default:
@@ -371,62 +364,53 @@ const CreateTaskStepperForm = () => {
     }
   };
 
-  if(loading) {
-    return <Spinner />;
-  }
-  
   return (
-    <div className="max-w-4xl mx-auto bg-white shadow-md rounded-lg">
-      <ProgressBar
-        percent={(currentStep - 1) * 50} // 50% for each step (2 steps + review)
-        filledBackground="linear-gradient(to right, #4db6ac, #003d34)"
-        className="mb-6"
-      >
+    <div className="w-full max-w-md mx-auto bg-white rounded-lg shadow-md">
+      <ProgressBar percent={(currentStep / 3) * 100}>
         <Step>
-          {({ active }: any) => (
-            <div className={`step ${active ? "active" : ""}`}></div>
+          {({ accomplished }: any) => (
+            <div className={`step ${accomplished ? "active" : ""}`}></div>
           )}
         </Step>
         <Step>
-          {({ active }: any) => (
-            <div className={`step ${active ? "active" : ""}`}></div>
+          {({ accomplished }: any) => (
+            <div className={`step ${accomplished ? "active" : ""}`}></div>
           )}
         </Step>
         <Step>
-          {({ active }: any) => (
-            <div className={`step ${active ? "active" : ""}`}></div>
+          {({ accomplished }: any) => (
+            <div className={`step ${accomplished ? "active" : ""}`}></div>
           )}
         </Step>
       </ProgressBar>
-
       <div className="p-6">
+        {error && <p className="text-red-500">{error}</p>}
+
         {renderStep()}
         <div className="flex justify-between mt-6">
-          {currentStep > 1 && (
-            <button
-              type="button"
-              onClick={prevStep}
-              className="bg-gray-400 text-white p-2 rounded"
-            >
-              Previous
-            </button>
-          )}
-
+          <button
+            type="button"
+            onClick={prevStep}
+            className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md"
+            disabled={currentStep === 1}
+          >
+            Previous
+          </button>
           {currentStep < 3 ? (
             <button
               type="button"
               onClick={nextStep}
-              className="bg-blue-500 text-white p-2 rounded"
+              className="bg-blue-500 text-white px-4 py-2 rounded-md"
             >
               Next
             </button>
           ) : (
             <button
               type="button"
-              className="bg-green-500 text-white p-2 rounded"
+              className="bg-blue-500 text-white px-4 py-2 rounded-md"
               onClick={handleSubmit}
             >
-              {isEditing ? "Update Task" : "Create Task"}
+              Submit
             </button>
           )}
         </div>
