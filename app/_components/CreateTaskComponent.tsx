@@ -8,6 +8,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import "react-step-progress-bar/styles.css";
 import { useLoader } from "../hooks/useLoader";
 import Spinner from "./Spinner";
+import axios from "axios";
+import { getFacilities } from "../services/facilityServices";
+import { getServices } from "../services/serviceServices";
 
 const CreateTaskStepperForm = () => {
   const { loading, stopLoader } = useLoader();
@@ -32,6 +35,8 @@ const CreateTaskStepperForm = () => {
   const taskId = searchParams.get("taskId");
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [facilities, setFacilities] = useState<any[]>([]);
+  const [services, setServices] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -44,7 +49,9 @@ const CreateTaskStepperForm = () => {
       }
     };
     fetchUsers();
-  }, [stopLoader]);
+    fetchFacility();
+    fetchServices();
+  }, []);
 
   useEffect(() => {
     if (taskId) {
@@ -60,6 +67,23 @@ const CreateTaskStepperForm = () => {
       fetchTask();
     }
   }, [taskId]);
+
+  const fetchFacility = async() =>{
+    try {
+      const respone = await getFacilities();
+      setFacilities(respone)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  const fetchServices = async() =>{
+    try {
+      const respone = await getServices();
+      setServices(respone)
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -82,8 +106,8 @@ const CreateTaskStepperForm = () => {
         start_time: task.start_time,
         end_time: task.end_time,
         assigned_to: task.assigned_to,
-        facility: task.facility,
-        task_type: task.task_type,
+        facility_id: task.facility_id,
+        service_id: task.service_id,
         priority: task.priority,
       };
       try {
@@ -111,8 +135,8 @@ const CreateTaskStepperForm = () => {
       // Validate the second step inputs (e.g., assigned_to, facility, task_type, priority)
       if (
         !task.assigned_to ||
-        !task.facility ||
-        !task.task_type ||
+        !task.facility_id ||
+        !task.service_id ||
         !task.priority
       ) {
         setError("Please fill in all required fields in Step 2.");
@@ -247,29 +271,39 @@ const CreateTaskStepperForm = () => {
               <label className="block text-gray-700 font-medium mb-2">
                 Facility
               </label>
-              <input
-                type="text"
-                name="facility"
-                value={task.facility}
-                onChange={handleInputChange}
-                placeholder="Enter facility"
+              <select
+                 name="facility_id"
+                 value={task.facility}
+                 onChange={handleInputChange}
                 className="w-full p-3 border border-gray-300 rounded-md shadow-sm"
                 required
-              />
+              >
+                <option value="">Select a facility</option>
+                {facilities.map((facility: any) => (
+                  <option key={facility?.id} value={facility?.id}>
+                    {facility?.name}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="mb-4">
               <label className="block text-gray-700 font-medium mb-2">
                 Task Type
               </label>
-              <input
-                type="text"
-                name="task_type"
-                value={task.task_type}
-                onChange={handleInputChange}
-                placeholder="Enter task type"
+              <select
+                 name="service_id"
+                 value={task.task_type}
+                 onChange={handleInputChange}
                 className="w-full p-3 border border-gray-300 rounded-md shadow-sm"
                 required
-              />
+              >
+                <option value="">Select a service</option>
+                {services.map((service: any) => (
+                  <option key={service?.id} value={service?.id}>
+                    {service?.name}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="mb-4">
               <label className="block text-gray-700 font-medium mb-2">

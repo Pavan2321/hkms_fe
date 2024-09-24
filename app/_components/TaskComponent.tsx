@@ -28,7 +28,7 @@ export default function TaskComponent() {
     };
 
     fetchTasks();
-  }, [stopLoader]);
+  }, []);
 
   const handleCreateTask = () => {
     router.push("/create-task");
@@ -85,8 +85,8 @@ export default function TaskComponent() {
                 <tr key={task._id}>
                   <td className="p-2 border-b">{task.title}</td>
                   <td className="p-2 border-b">{task.assigned_to}</td>
-                  <td className="p-2 border-b">{task.facility}</td>
-                  <td className="p-2 border-b">{task.task_type}</td>
+                  <td className="p-2 border-b">{task.facility?.name}</td>
+                  <td className="p-2 border-b">{task.service?.name}</td>
                   <td className="p-2 border-b">{task.priority}</td>
                   <td className="p-2 border-b">
                     {new Date(task.start_time).toLocaleTimeString()}

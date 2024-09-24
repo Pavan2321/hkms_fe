@@ -7,11 +7,12 @@ import Header from "./Header";
 import { createServices, getServicesById, updateServices } from "../services/serviceServices";
 import { useLoader } from "../hooks/useLoader";
 import Spinner from "./Spinner";
+import { getUid } from "../services/coreServices";
 
 export default function AddServiceComponent() {
   const { loading, stopLoader } = useLoader();
   const [service, setService] = useState<any>({
-    id: "1",
+    id: "",
     name: "",
     details: ""
   });
@@ -34,7 +35,7 @@ export default function AddServiceComponent() {
       };
       fetchTask();
     }
-  }, [serviceId, stopLoader]);
+  }, [serviceId]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -44,9 +45,10 @@ export default function AddServiceComponent() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log(service)
     e.preventDefault();
     const data = {
-      id: service.id,
+      id: service.id || getUid(),
       name: service.name,
       details: service.details
     };

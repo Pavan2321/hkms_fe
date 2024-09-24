@@ -26,7 +26,7 @@ export default function FacilityComponent() {
     };
 
     fetchFacilities();
-  }, [stopLoader]);
+  }, []);
 
   const handleAddFacility = () => {
     router.push("/add-facility");

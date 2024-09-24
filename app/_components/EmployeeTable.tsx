@@ -42,7 +42,7 @@ export default function EmployeeTable() {
     };
 
     fetchUsers();
-  }, [stopLoader]);
+  }, []);
 
   const handleSearch = () => {
     if (!Array.isArray(employees)) return; // Add a check to ensure employees is an array

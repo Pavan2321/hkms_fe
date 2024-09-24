@@ -7,11 +7,12 @@ import Header from "./Header";
 import { createFacilities, getFacilitiesById, updateFacilities } from "../services/facilityServices";
 import { useLoader } from "../hooks/useLoader";
 import Spinner from "./Spinner";
+import { getUid } from "../services/coreServices";
 
 export default function AddFacilityComponent() {
   const { loading, stopLoader } = useLoader();
   const [facility, setFacility] = useState<any>({
-    id: "1",
+    id: "",
     name: "",
     details: ""
   });
@@ -34,7 +35,7 @@ export default function AddFacilityComponent() {
       };
       fetchTask();
     }
-  }, [facilityId, stopLoader]);
+  }, [facilityId]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -46,7 +47,7 @@ export default function AddFacilityComponent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const data = {
-      id: facility.id,
+      id: facility.id || getUid(),
       name: facility.name,
       details: facility.details
     };
