@@ -414,6 +414,10 @@ console.log('rishabh',filteredUsers)
     }
   };
 
+  if(loading) {
+    return <Spinner />;
+  }
+
   return (
     <div className="w-full max-w-md mx-auto bg-white rounded-lg shadow-md">
       <ProgressBar percent={(currentStep / 3) * 100}>
