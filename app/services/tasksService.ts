@@ -58,3 +58,12 @@ export const deleteTask = async (id: string) => {
     throw error;
   }
 };
+
+export const getAvailableUsers = async() =>{
+  try {
+    const resposne = await axios.post(`${API_URL}/tasks/available-users`);
+    return resposne.data.data;
+  } catch (error) {
+    console.error(error)
+  }
+}

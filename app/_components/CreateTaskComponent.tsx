@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { createTask, getTaskById, updateTask } from "../services/tasksService";
+import { createTask, getAvailableUsers, getTaskById, updateTask } from "../services/tasksService";
 import { getUsers } from "../services/userService";
 import { ProgressBar, Step } from "react-step-progress-bar";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -37,6 +37,8 @@ const CreateTaskStepperForm = () => {
   const [error, setError] = useState<string | null>(null);
   const [facilities, setFacilities] = useState<any[]>([]);
   const [services, setServices] = useState<any[]>([]);
+  const [availableUsers, setAvailableUsers] = useState<any[]>([]);
+  const [filterAvailableUsers, setFilterAvailableUsers] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -51,6 +53,7 @@ const CreateTaskStepperForm = () => {
     fetchUsers();
     fetchFacility();
     fetchServices();
+    fetchAvailableUsers();
   }, []);
 
   useEffect(() => {
@@ -58,22 +61,19 @@ const CreateTaskStepperForm = () => {
       const fetchTask = async () => {
         try {
           const taskData = await getTaskById(taskId);
-          console.log(taskData, 'Task data')
           setTask(taskData);
-          console.log(task, 'set task data')
           setIsEditing(true);
-        } catch (error) {
+        } catch (error) { 
           setError("Error getting the task");
         }
       };
       fetchTask();
     }
   }, [taskId]);
-
+  
   const fetchFacility = async () => {
     try {
       const respone = await getFacilities();
-      console.log(respone, 'facilities')
       setFacilities(respone);
     } catch (error) {
       console.log(error);
@@ -83,12 +83,21 @@ const CreateTaskStepperForm = () => {
   const fetchServices = async () => {
     try {
       const respone = await getServices();
-      console.log(respone, 'services')
       setServices(respone);
     } catch (error) {
       console.log(error);
     }
   };
+
+  const fetchAvailableUsers = async() => {
+    try {
+      const response = await getAvailableUsers();
+      setAvailableUsers(response)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -129,13 +138,17 @@ const CreateTaskStepperForm = () => {
     }
   };
 
-  const nextStep = () => {
+  const nextStep = async () => {
     if (currentStep === 1) {
       // Validate the first step inputs (e.g., title, date, time)
       if (!task.title || !task.date || !task.start_time || !task.end_time) {
         setError("Please fill in all required fields in Step 1.");
         return; // Prevent moving to the next step if validation fails
       }
+      console.log(task.start_time, task.end_time)
+      const filterUsers =  filterAvailableUsersData(task.start_time, task.end_time)
+      setFilterAvailableUsers(filterUsers)
+      console.log('filterAvailableUsers',filterUsers)
     } else if (currentStep === 2) {
       // Validate the second step inputs (e.g., assigned_to, facility, task_type, priority)
       if (
@@ -161,6 +174,43 @@ const CreateTaskStepperForm = () => {
       setCurrentStep(currentStep - 1); // Ensure the form doesn't go below step 1
     }
   };
+
+  function formatTimeToHHMM(date:any) {
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${hours}:${minutes}`;
+}
+
+function convertTimeToDate(time:any) {
+  const [hours, minutes] = time.split(':').map(Number);
+  const date = new Date();
+  date.setHours(hours, minutes, 0, 0); // Set hours and minutes, zero out seconds and milliseconds
+  return date;
+}
+
+  function filterAvailableUsersData(startTime:any, endTime:any) {
+   
+    const desiredStart = new Date(startTime);
+    const desiredEnd = new Date(endTime);
+    console.log(desiredStart, desiredEnd);
+
+    const available=  availableUsers.filter(user => {
+      console.log(user, 'filtered user')
+        const value =  user.availableSlots.some((slot:any) => {
+          console.log('slot',slot)
+          const slotStart = convertTimeToDate(slot.start); 
+          const slotEnd = convertTimeToDate(slot.end); 
+
+          return slotStart <= desiredStart && slotEnd >= desiredEnd;
+        });
+        return value;
+    }); 
+    return available;
+}
+
+const filteredUsers = users.filter(user => filterAvailableUsers.some(filteredUser => filteredUser.user_id === user.user_id));
+
+console.log('rishabh',filteredUsers)
 
   const renderStep = () => {
     switch (currentStep) {
@@ -267,8 +317,8 @@ const CreateTaskStepperForm = () => {
                 <option value="" disabled>
                   Select user
                 </option>
-                {users.map((user) => (
-                  <option key={user._id} value={user._id}>
+                {filteredUsers.map((user) => (
+                  <option key={user.user_id} value={user.user_id}>
                     {user.first_name}
                   </option>
                 ))}
@@ -289,7 +339,7 @@ const CreateTaskStepperForm = () => {
                   Select facility
                 </option>
                 {facilities.map((facility) => (
-                  <option key={facility._id} value={facility._id}>
+                  <option key={facility.id} value={facility.id}>
                     {facility.name}
                   </option>
                 ))}
@@ -310,7 +360,7 @@ const CreateTaskStepperForm = () => {
                   Select service
                 </option>
                 {services.map((service) => (
-                  <option key={service._id} value={service._id}>
+                  <option key={service.id} value={service.id}>
                     {service.name}
                   </option>
                 ))}
