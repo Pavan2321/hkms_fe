@@ -43,7 +43,7 @@ export default function AddEmployee() {
 
       fetchEmployee();
     }
-  }, [employeeId, stopLoader]);
+  }, [employeeId]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -64,8 +64,8 @@ export default function AddEmployee() {
       } else {
         const _date = new Date();
         const _password = employee.email + _date;
-        const { email, password, role, first_name, last_name, phone_number } = employee;
-        await registerUser(email, _password, role, first_name, last_name, phone_number); // Register a new employee
+        const { email, password, role, first_name, last_name, phone_number, user_id } = employee;
+        await registerUser(email, _password, role, first_name, last_name, phone_number, user_id); // Register a new employee
       }
 
       router.push("/employee"); // Redirect to employee list after update or add
@@ -178,7 +178,6 @@ export default function AddEmployee() {
             type="text"
             name="phone_number"
             id="phone_number"
-            required
             value={employee?.phone_number}
             onChange={handleChange}
             className="mt-1 block w-full border border-gray-300 p-2 rounded-md"

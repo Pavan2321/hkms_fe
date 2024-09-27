@@ -210,7 +210,24 @@ function convertTimeToDate(time:any) {
 
 const filteredUsers = users.filter(user => filterAvailableUsers.some(filteredUser => filteredUser.user_id === user.user_id));
 
-console.log('rishabh',filteredUsers)
+const filteredUserName = (userId:string) =>{
+  const value =  users.find(user => user.user_id === userId);
+
+  return value? value.first_name + " " + value.last_name : "";
+}
+
+const filterFacilityName = (facilityId:string) =>{
+  const value =  facilities.find(facility => facility.id === facilityId);
+
+  return value? value.name : "";
+}
+
+const filterServiceName = (serviceId:string) =>{
+  const value =  services.find(service => service.id === serviceId);
+
+  return value? value.name : "";
+}
+
 
   const renderStep = () => {
     switch (currentStep) {
@@ -403,9 +420,9 @@ console.log('rishabh',filteredUsers)
               End Time:{" "}
               {task.end_time && new Date(task.end_time).toLocaleTimeString()}
             </p>
-            <p>Assigned To: {task.assigned_to}</p>
-            <p>Facility: {task.facility_id}</p>
-            <p>Service: {task.service_id}</p>
+            <p>Assigned To: {filteredUserName(task.assigned_to)}</p>
+            <p>Facility: {filterFacilityName(task.facility_id)}</p>
+            <p>Service: {filterServiceName(task.service_id)}</p>
             <p>Priority: {task.priority}</p>
           </div>
         );

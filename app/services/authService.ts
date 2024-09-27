@@ -3,14 +3,15 @@ import axios from 'axios';
 const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:7000/api';
 
 // Register user
-export const registerUser = async (email: string, password: string, role: string, first_name: string, last_name: string, phone_number:string) => {
+export const registerUser = async (email: string, password: string, role: string, first_name: string, last_name: string, phone_number:string, user_id:string) => {
   const response = await axios.post(`${API_URL}/auth/register`, {
     email,
     password,
     role,
     first_name,
     last_name,
-    phone_number
+    phone_number,
+    user_id
   });
   return response.data;
 };
