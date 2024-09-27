@@ -23,6 +23,7 @@ const CreateTaskStepperForm = () => {
     facility_id: "",
     service_id: "",
     priority: "",
+    repeated_task: "",
     start_time: "",
     status: "",
     task_type: "",
@@ -63,14 +64,14 @@ const CreateTaskStepperForm = () => {
           const taskData = await getTaskById(taskId);
           setTask(taskData);
           setIsEditing(true);
-        } catch (error) { 
+        } catch (error) {
           setError("Error getting the task");
         }
       };
       fetchTask();
     }
   }, [taskId]);
-  
+
   const fetchFacility = async () => {
     try {
       const respone = await getFacilities();
@@ -89,7 +90,7 @@ const CreateTaskStepperForm = () => {
     }
   };
 
-  const fetchAvailableUsers = async() => {
+  const fetchAvailableUsers = async () => {
     try {
       const response = await getAvailableUsers();
       setAvailableUsers(response)
@@ -97,7 +98,7 @@ const CreateTaskStepperForm = () => {
       console.log(error)
     }
   }
-  
+
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -123,6 +124,7 @@ const CreateTaskStepperForm = () => {
         facility_id: task.facility_id,
         service_id: task.service_id,
         priority: task.priority,
+        repeated_task: task.repeated_task
       };
       try {
         if (taskId && isEditing) {
@@ -146,9 +148,9 @@ const CreateTaskStepperForm = () => {
         return; // Prevent moving to the next step if validation fails
       }
       console.log(task.start_time, task.end_time)
-      const filterUsers =  filterAvailableUsersData(task.start_time, task.end_time)
+      const filterUsers = filterAvailableUsersData(task.start_time, task.end_time)
       setFilterAvailableUsers(filterUsers)
-      console.log('filterAvailableUsers',filterUsers)
+      console.log('filterAvailableUsers', filterUsers)
     } else if (currentStep === 2) {
       // Validate the second step inputs (e.g., assigned_to, facility, task_type, priority)
       if (
@@ -175,58 +177,58 @@ const CreateTaskStepperForm = () => {
     }
   };
 
-  function formatTimeToHHMM(date:any) {
+  function formatTimeToHHMM(date: any) {
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
     return `${hours}:${minutes}`;
-}
+  }
 
-function convertTimeToDate(time:any) {
-  const [hours, minutes] = time.split(':').map(Number);
-  const date = new Date();
-  date.setHours(hours, minutes, 0, 0); // Set hours and minutes, zero out seconds and milliseconds
-  return date;
-}
+  function convertTimeToDate(time: any) {
+    const [hours, minutes] = time.split(':').map(Number);
+    const date = new Date();
+    date.setHours(hours, minutes, 0, 0); // Set hours and minutes, zero out seconds and milliseconds
+    return date;
+  }
 
-  function filterAvailableUsersData(startTime:any, endTime:any) {
-   
+  function filterAvailableUsersData(startTime: any, endTime: any) {
+
     const desiredStart = new Date(startTime);
     const desiredEnd = new Date(endTime);
     console.log(desiredStart, desiredEnd);
 
-    const available=  availableUsers.filter(user => {
+    const available = availableUsers.filter(user => {
       console.log(user, 'filtered user')
-        const value =  user.availableSlots.some((slot:any) => {
-          console.log('slot',slot)
-          const slotStart = convertTimeToDate(slot.start); 
-          const slotEnd = convertTimeToDate(slot.end); 
+      const value = user.availableSlots.some((slot: any) => {
+        console.log('slot', slot)
+        const slotStart = convertTimeToDate(slot.start);
+        const slotEnd = convertTimeToDate(slot.end);
 
-          return slotStart <= desiredStart && slotEnd >= desiredEnd;
-        });
-        return value;
-    }); 
+        return slotStart <= desiredStart && slotEnd >= desiredEnd;
+      });
+      return value;
+    });
     return available;
-}
+  }
 
-const filteredUsers = users.filter(user => filterAvailableUsers.some(filteredUser => filteredUser.user_id === user.user_id));
+  const filteredUsers = users.filter(user => filterAvailableUsers.some(filteredUser => filteredUser.user_id === user.user_id));
 
-const filteredUserName = (userId:string) =>{
-  const value =  users.find(user => user.user_id === userId);
+  const filteredUserName = (userId: string) => {
+    const value = users.find(user => user.user_id === userId);
 
-  return value? value.first_name + " " + value.last_name : "";
-}
+    return value ? value.first_name + " " + value.last_name : "";
+  }
 
-const filterFacilityName = (facilityId:string) =>{
-  const value =  facilities.find(facility => facility.id === facilityId);
+  const filterFacilityName = (facilityId: string) => {
+    const value = facilities.find(facility => facility.id === facilityId);
 
-  return value? value.name : "";
-}
+    return value ? value.name : "";
+  }
 
-const filterServiceName = (serviceId:string) =>{
-  const value =  services.find(service => service.id === serviceId);
+  const filterServiceName = (serviceId: string) => {
+    const value = services.find(service => service.id === serviceId);
 
-  return value? value.name : "";
-}
+    return value ? value.name : "";
+  }
 
 
   const renderStep = () => {
@@ -239,7 +241,7 @@ const filterServiceName = (serviceId:string) =>{
             </h3>
             <div className="mb-4">
               <label className="block text-gray-700 font-medium mb-2">
-                Task Name
+                Task Name *
               </label>
               <input
                 type="text"
@@ -253,7 +255,7 @@ const filterServiceName = (serviceId:string) =>{
             </div>
             <div className="mb-4">
               <label className="block text-gray-700 font-medium mb-2">
-                Select Date
+                Select Date *
               </label>
               <DatePicker
                 selected={task.date ? new Date(task.date) : null}
@@ -265,10 +267,10 @@ const filterServiceName = (serviceId:string) =>{
                 required
               />
             </div>
-            <div className="flex space-x-4">
+            <div className="flex space-x-4 mb-4">
               <div className="w-1/2">
                 <label className="block text-gray-700 font-medium mb-2">
-                  Start Time
+                  Start Time *
                 </label>
                 <DatePicker
                   selected={task.start_time ? new Date(task.start_time) : null}
@@ -276,7 +278,7 @@ const filterServiceName = (serviceId:string) =>{
                   minDate={new Date()}
                   minTime={
                     task.date &&
-                    new Date(task.date).toDateString() ===
+                      new Date(task.date).toDateString() ===
                       new Date().toDateString()
                       ? new Date()
                       : new Date(new Date().setHours(0, 0, 0, 0))
@@ -294,7 +296,7 @@ const filterServiceName = (serviceId:string) =>{
               </div>
               <div className="w-1/2">
                 <label className="block text-gray-700 font-medium mb-2">
-                  End Time
+                  End Time *
                 </label>
                 <DatePicker
                   selected={task.end_time ? new Date(task.end_time) : null}
@@ -314,12 +316,28 @@ const filterServiceName = (serviceId:string) =>{
                 />
               </div>
             </div>
+            <div className="">
+            <label className="block text-gray-700 font-medium mb-2">
+                Repeated Task
+            </label>
+            <select
+                name="repeated_task"
+                value={task.repeated_task}
+                onChange={handleInputChange}
+                className="w-full p-3 border border-gray-300 rounded-md shadow-sm"
+              >
+                <option value="" disabled>Select repeat</option>
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+              </select>
+            </div>
           </div>
         );
       case 2:
         return (
           <div>
-            <h3 className="text-xl font-bold mb-4">Assignment & Metadata</h3>
+            <h3 className="text-xl font-bold">Assignment & Metadata</h3>
             <div className="mb-4">
               <label className="block text-gray-700 font-medium mb-2">
                 Assign To
@@ -431,7 +449,7 @@ const filterServiceName = (serviceId:string) =>{
     }
   };
 
-  if(loading) {
+  if (loading) {
     return <Spinner />;
   }
 
